@@ -1,0 +1,77 @@
+name: Build APK
+
+# 推送到 main 分支时自动编译，并把 APK 发布到 Releases 页面。
+# 也可以在 Actions 页面手动点 "Run workflow" 重新编译。
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check transcripts.json
+        run: python3 -c "import json;d=json.load(open('web/transcripts.json',encoding='utf-8'));e=d['episodes'];print(len(e),'episodes OK')"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build release APK
+        run: |
+          set -o pipefail
+          if ! ./gradlew --no-daemon assembleRelease 2>&1 | tee build.log; then
+            # 把错误原因写成注释，在 Actions 页面顶部直接可见
+            msg=$( (grep -E "^e: |error:" build.log; grep -A10 "What went wrong" build.log) | head -20 | sed 's/%/%25/g' | sed ':a;N;$!ba;s/\n/%0A/g')
+            echo "::error title=Gradle build failed::${msg:-see log}"
+            exit 1
+          fi
+
+      - name: Verify APK
+        run: |
+          APK=app/build/outputs/apk/release/app-release.apk
+          [ -f "$APK" ] || { echo "::error::APK not found"; exit 1; }
+          python3 - "$APK" <<'PY' || exit 1
+          import sys, zipfile
+          names = set(zipfile.ZipFile(sys.argv[1]).namelist())
+          missing = [n for n in ["assets/index.html", "assets/transcripts.json"] if n not in names]
+          if missing:
+              print(f"::error title=APK contents::missing {missing}")
+              sys.exit(1)
+          print("::notice title=APK contents::web assets present (%d entries)" % len(names))
+          PY
+
+      - name: Rename APK
+        run: |
+          mkdir -p out
+          cp app/build/outputs/apk/release/app-release.apk "out/esp_listen-v1.0.${{ github.run_number }}.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: esp_listen-v1.0.${{ github.run_number }}
+          path: out/*.apk
+
+      - name: Publish release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: 西语听力 v1.0.${{ github.run_number }}
+          body: |
+            自动编译自 ${{ github.sha }}。
+            下载下面的 .apk 文件，在手机上安装即可（新版本可以直接覆盖安装，收听进度会保留）。
+          files: out/*.apk
+          make_latest: true

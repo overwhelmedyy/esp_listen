@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>西语听力</title>
+<style>
+  :root {
+    --bg: #faf7f2; --card: #ffffff; --fg: #1f1d1a; --muted: #8a847b; --line: #e8e2d8;
+    --accent: #c2410c; --accent-soft: #fde7da; --en: #6b665e; --panel: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #171614; --card: #211f1c; --fg: #ece8e1; --muted: #8f897f; --line: #34312c;
+            --accent: #fb923c; --accent-soft: #3b2417; --en: #a39d93; --panel: #1e1c19; }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, "Segoe UI", Roboto, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  .screen { position: fixed; inset: 0; display: flex; flex-direction: column; }
+  .hidden { display: none !important; }
+
+  /* ---------- 顶栏 ---------- */
+  .bar { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); background: var(--bg); flex: none; }
+  .bar h1 { font-size: 19px; margin: 0; flex: 1; }
+  .bar .title { flex: 1; min-width: 0; font-weight: 600; font-size: 15px; line-height: 1.3;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .iconbtn { min-width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; font-size: 15px; font-weight: 600; }
+  .iconbtn:active { background: var(--line); }
+  .pill { padding: 0 12px; height: 34px; border-radius: 17px; border: 1px solid var(--line); font-size: 14px; }
+  .pill.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ---------- 列表页 ---------- */
+  #folderRow { display: flex; align-items: center; gap: 10px; padding: 10px 12px; font-size: 13px; color: var(--muted); flex: none; }
+  #folderRow span { flex: 1; }
+  #search { margin: 0 12px 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--fg); font-size: 15px; flex: none; }
+  #list { flex: 1; overflow-y: auto; padding: 0 12px 90px; }
+  .ep { display: flex; gap: 12px; align-items: center; padding: 12px 4px; border-bottom: 1px solid var(--line); }
+  .ep:active { background: var(--line); }
+  .ep .num { font: 600 13px ui-monospace, monospace; color: var(--accent); width: 40px; flex: none; }
+  .ep .t { flex: 1; min-width: 0; font-size: 15px; line-height: 1.35; }
+  .ep .meta { font-size: 12px; color: var(--muted); margin-top: 3px; display: flex; gap: 8px; align-items: center; }
+  .ep .prog { height: 3px; background: var(--line); border-radius: 2px; width: 60px; overflow: hidden; }
+  .ep .prog i { display: block; height: 100%; background: var(--accent); }
+  .ep.noaudio .t { opacity: .5; }
+  .tag { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--accent-soft); color: var(--accent); }
+
+  #mini { position: fixed; left: 10px; right: 10px; bottom: 10px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 14px; padding: 8px 8px 8px 14px; display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.12); }
+  #mini .t { flex: 1; min-width: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #miniPlay { width: 48px; height: 48px; border-radius: 24px; background: var(--accent); color: #fff; font-size: 20px; }
+
+  /* ---------- 播放页 ---------- */
+  #text { flex: 1; overflow-y: auto; padding: 16px 18px 24px; -webkit-overflow-scrolling: touch; }
+  .para { margin: 0 0 18px; }
+  .spk { font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 2px; letter-spacing: .02em; }
+  .es { font-size: var(--fs, 19px); line-height: 1.6; }
+  .en { font-size: calc(var(--fs, 19px) * .78); line-height: 1.5; color: var(--en); margin-top: 4px; }
+  body.no-en .en { display: none; }
+  .note { color: var(--muted); font-size: 14px; padding: 8px 0 16px; }
+
+  #panel { flex: none; background: var(--panel); border-top: 1px solid var(--line); padding: 8px 14px 12px; }
+  #seekRow { display: flex; align-items: center; gap: 10px; font: 12px ui-monospace, monospace; color: var(--muted); }
+  #seek { flex: 1; accent-color: var(--accent); height: 28px; }
+  #ctrlRow { display: flex; justify-content: space-between; align-items: center; margin: 6px 0 10px; }
+  .skip { width: 60px; height: 60px; border-radius: 30px; background: var(--card); border: 1px solid var(--line);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
+  .skip b { font-size: 19px; }
+  .skip small { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .skip:active, #play:active { transform: scale(.94); }
+  #play { width: 78px; height: 78px; border-radius: 39px; background: var(--accent); color: #fff; font-size: 30px;
+    box-shadow: 0 4px 14px rgba(194,65,12,.35); display: grid; place-items: center; }
+  #speedRow { display: flex; gap: 6px; }
+  #speedRow button { flex: 1; height: 40px; border-radius: 10px; border: 1px solid var(--line); font-size: 15px; font-weight: 600; }
+  #speedRow button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  #msg { position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%); background: rgba(0,0,0,.78); color: #fff;
+    padding: 10px 18px; border-radius: 10px; font-size: 15px; pointer-events: none; opacity: 0; transition: opacity .2s; z-index: 9; }
+  #msg.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ========== 剧集列表 ========== -->
+<section id="listScreen" class="screen">
+  <div class="bar">
+    <h1>西语听力</h1>
+  </div>
+  <div id="folderRow">
+    <span id="folderInfo">还没有选择音频文件夹</span>
+    <button class="pill" id="pickBtn">选择音频文件夹</button>
+  </div>
+  <input id="search" type="search" placeholder="搜索标题或集数…" autocomplete="off">
+  <div id="list"></div>
+  <div id="mini" class="hidden">
+    <div class="t" id="miniTitle"></div>
+    <button id="miniPlay">▶</button>
+  </div>
+  <input type="file" id="dirInput" webkitdirectory multiple class="hidden">
+</section>
+
+<!-- ========== 播放页 ========== -->
+<section id="playerScreen" class="screen hidden">
+  <div class="bar">
+    <button class="iconbtn" id="backBtn" aria-label="返回">←</button>
+    <div class="title" id="pTitle"></div>
+    <button class="iconbtn" id="fontDown" aria-label="缩小字号">A−</button>
+    <button class="iconbtn" id="fontUp" aria-label="放大字号">A+</button>
+    <button class="pill on" id="enBtn">EN</button>
+  </div>
+  <div id="text"></div>
+  <div id="panel">
+    <div id="seekRow">
+      <span id="cur">0:00</span>
+      <input type="range" id="seek" min="0" max="1000" value="0">
+      <span id="dur">0:00</span>
+    </div>
+    <div id="ctrlRow">
+      <button class="skip" data-skip="-10"><b>«10</b><small>秒</small></button>
+      <button class="skip" data-skip="-5"><b>‹5</b><small>秒</small></button>
+      <button id="play" aria-label="播放/暂停">▶</button>
+      <button class="skip" data-skip="5"><b>5›</b><small>秒</small></button>
+      <button class="skip" data-skip="10"><b>10»</b><small>秒</small></button>
+    </div>
+    <div id="speedRow"></div>
+  </div>
+</section>
+
+<div id="msg"></div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const SPEEDS = [0.75, 0.85, 1, 1.15, 1.25, 1.5];
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+
+let EPISODES = [];          // 来自 transcripts.json
+let audioByYt = {};         // YouTube ID -> 音频文件名（或浏览器里的 File）
+let current = null;         // 当前打开/播放的剧集
+let st = { pos: 0, dur: 0, playing: false };
+let seeking = false;
+
+/* ======================================================================
+ * 播放器适配层：在 app 里用原生播放器（window.Android），在浏览器里用 <audio>
+ * ==================================================================== */
+const native = window.Android && typeof window.Android.load === 'function';
+const player = native ? {
+  pick() { Android.pickFolder(); },
+  list() { try { return JSON.parse(Android.listAudio() || '[]'); } catch { return []; } },
+  load(file, startMs) { Android.load(file, Math.round(startMs)); },
+  toggle() { Android.toggle(); },
+  play() { Android.play(); },
+  seekTo(ms) { Android.seekTo(Math.round(ms)); },
+  seekBy(ms) { Android.seekBy(Math.round(ms)); },
+  speed(x) { Android.setSpeed(x); },
+  state() { try { return JSON.parse(Android.state()); } catch { return null; } },
+  folderName() { try { return Android.folderName() || ''; } catch { return ''; } },
+} : (() => {
+  const au = new Audio(); let files = [];
+  au.preservesPitch = true;
+  return {
+    pick() { $('dirInput').click(); },
+    setFiles(fs) { files = fs; },
+    list() { return files.map(f => ({ name: f.name, file: f })); },
+    load(entry, startMs) {
+      const f = files.find(x => x.name === entry);
+      if (!f) return;
+      if (au.src) URL.revokeObjectURL(au.src);
+      au.src = URL.createObjectURL(f);
+      au.addEventListener('loadedmetadata', () => { au.currentTime = startMs / 1000; au.play(); }, { once: true });
+    },
+    toggle() { au.paused ? au.play() : au.pause(); },
+    play() { au.play(); },
+    seekTo(ms) { au.currentTime = Math.max(0, ms / 1000); },
+    seekBy(ms) { au.currentTime = Math.max(0, Math.min(au.duration || 0, au.currentTime + ms / 1000)); },
+    speed(x) { au.playbackRate = x; },
+    state() { return { pos: au.currentTime * 1000, dur: (au.duration || 0) * 1000, playing: !au.paused }; },
+    folderName() { return files.length ? '已选择的文件夹' : ''; },
+  };
+})();
+
+$('dirInput').addEventListener('change', e => {
+  player.setFiles([...e.target.files].filter(f => /\.(mp3|m4a|aac|ogg|opus|wav)$/i.test(f.name)));
+  refreshAudio();
+});
+// 原生选完文件夹后回调
+window.onFolderPicked = () => refreshAudio();
+// 原生播放结束等事件
+window.onPlayerEvent = ev => {
+  if (ev === 'completed') { saveProgress(true); }
+  if (ev && ev.startsWith && ev.startsWith('error')) toast('无法播放：' + ev.slice(6));
+};
+
+function refreshAudio() {
+  audioByYt = {};
+  let n = 0;
+  for (const f of player.list()) {
+    const m = f.name.match(/\[([A-Za-z0-9_-]{11})\]\.[a-z0-9]+$/i);
+    if (m) { audioByYt[m[1]] = f.name; n++; }
+  }
+  const fname = player.folderName();
+  const matched = EPISODES.filter(e => e.yt && audioByYt[e.yt]).length;
+  $('folderInfo').textContent = n
+    ? `${fname ? fname + '：' : ''}找到 ${n} 个音频，匹配 ${matched} 集`
+    : (fname ? `${fname}：没有找到音频文件` : '还没有选择音频文件夹');
+  $('pickBtn').textContent = n ? '更换文件夹' : '选择音频文件夹';
+  renderList();
+}
+
+/* ======================================================================
+ * 列表页
+ * ==================================================================== */
+const pad = n => 'E' + String(n).padStart(3, '0');
+const fmt = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+
+function renderList() {
+  const q = $('search').value.trim().toLowerCase();
+  const prog = store.get('progress', {});
+  const frag = document.createDocumentFragment();
+  for (const e of EPISODES) {
+    const label = pad(e.n) + ' ' + e.title;
+    if (q && !label.toLowerCase().includes(q) && String(e.n) !== q) continue;
+    const has = e.yt && audioByYt[e.yt];
+    const p = prog[e.n];
+    const div = document.createElement('div');
+    div.className = 'ep' + (has ? '' : ' noaudio');
+    div.innerHTML = `<div class="num">${pad(e.n)}</div><div class="t"><div></div><div class="meta"></div></div>`;
+    div.querySelector('.t div').textContent = e.title || '(无标题)';
+    const meta = div.querySelector('.meta');
+    if (e.kind === 'exercise') meta.insertAdjacentHTML('beforeend', '<span class="tag">只有练习题</span>');
+    if (!has) meta.insertAdjacentHTML('beforeend', '<span>无音频</span>');
+    if (p && p.dur) {
+      const pct = p.done ? 100 : Math.min(100, Math.round(p.pos / p.dur * 100));
+      meta.insertAdjacentHTML('beforeend', `<span class="prog"><i style="width:${pct}%"></i></span><span>${p.done ? '已听完' : fmt(p.pos) + ' / ' + fmt(p.dur)}</span>`);
+    }
+    div.onclick = () => openEpisode(e);
+    frag.append(div);
+  }
+  $('list').replaceChildren(frag);
+}
+$('search').addEventListener('input', renderList);
+$('pickBtn').onclick = () => player.pick();
+
+/* ======================================================================
+ * 播放页
+ * ==================================================================== */
+function openEpisode(e) {
+  const file = e.yt && audioByYt[e.yt];
+  const sameAsPlaying = current && current.n === e.n;
+  if (current && !sameAsPlaying) saveProgress(false);
+  current = e;
+  $('pTitle').textContent = pad(e.n) + ' ' + e.title;
+  renderText(e);
+  showPlayer(true);
+  if (sameAsPlaying) return;
+  if (file) {
+    const p = store.get('progress', {})[e.n];
+    const start = p && !p.done ? Math.max(0, p.pos - 2000) : 0;   // 回退 2 秒接着听
+    player.load(file, start);
+    player.speed(store.get('speed', 1));
+  } else {
+    toast('这一集没有找到音频文件');
+  }
+  store.set('last', e.n);
+}
+
+function renderText(e) {
+  const box = $('text');
+  box.replaceChildren();
+  if (e.kind === 'exercise') {
+    const n = document.createElement('div'); n.className = 'note';
+    n.textContent = '这一集的 PDF 只有练习题，没有逐字稿：';
+    box.append(n);
+  }
+  const frag = document.createDocumentFragment();
+  for (const p of e.paras) {
+    const d = document.createElement('div'); d.className = 'para';
+    if (p.s) { const s = document.createElement('div'); s.className = 'spk'; s.textContent = p.s; d.append(s); }
+    const es = document.createElement('div'); es.className = 'es'; es.textContent = p.es; d.append(es);
+    if (p.en) { const en = document.createElement('div'); en.className = 'en'; en.textContent = p.en; d.append(en); }
+    frag.append(d);
+  }
+  box.append(frag);
+  const y = store.get('scroll', {})[e.n] || 0;
+  requestAnimationFrame(() => { box.scrollTop = y; });
+}
+
+// 记住每集文本滚动位置
+let scrollTimer = 0;
+$('text').addEventListener('scroll', () => {
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(() => {
+    if (!current) return;
+    const s = store.get('scroll', {}); s[current.n] = Math.round($('text').scrollTop); store.set('scroll', s);
+  }, 300);
+}, { passive: true });
+
+function showPlayer(on) {
+  $('playerScreen').classList.toggle('hidden', !on);
+  $('listScreen').classList.toggle('hidden', on);
+  if (!on) { renderList(); updateMini(); }
+}
+$('backBtn').onclick = () => showPlayer(false);
+window.appBack = () => {      // 安卓返回键
+  if (!$('playerScreen').classList.contains('hidden')) { showPlayer(false); return true; }
+  return false;
+};
+
+// ---- 控制按钮 ----
+$('play').onclick = () => { player.toggle(); poll(); };
+document.querySelectorAll('[data-skip]').forEach(b => {
+  b.onclick = () => {
+    const sec = +b.dataset.skip;
+    player.seekBy(sec * 1000);
+    toast((sec > 0 ? '+' : '') + sec + ' 秒', 500);
+    setTimeout(poll, 60);
+  };
+});
+SPEEDS.forEach(x => {
+  const b = document.createElement('button');
+  b.textContent = x + '×'; b.dataset.speed = x;
+  b.onclick = () => setSpeed(x);
+  $('speedRow').append(b);
+});
+function setSpeed(x) {
+  player.speed(x); store.set('speed', x);
+  document.querySelectorAll('[data-speed]').forEach(b => b.classList.toggle('on', +b.dataset.speed === x));
+}
+
+const seekEl = $('seek');
+seekEl.addEventListener('input', () => { seeking = true; $('cur').textContent = fmt(seekEl.value / 1000 * st.dur); });
+seekEl.addEventListener('change', () => { player.seekTo(seekEl.value / 1000 * st.dur); seeking = false; setTimeout(poll, 60); });
+
+// ---- 英文开关 / 字号 ----
+function applyPrefs() {
+  document.body.classList.toggle('no-en', !store.get('showEn', true));
+  $('enBtn').classList.toggle('on', store.get('showEn', true));
+  document.documentElement.style.setProperty('--fs', store.get('fontSize', 19) + 'px');
+}
+$('enBtn').onclick = () => { store.set('showEn', !store.get('showEn', true)); applyPrefs(); };
+$('fontUp').onclick = () => { store.set('fontSize', Math.min(30, store.get('fontSize', 19) + 1)); applyPrefs(); };
+$('fontDown').onclick = () => { store.set('fontSize', Math.max(14, store.get('fontSize', 19) - 1)); applyPrefs(); };
+
+// ---- 迷你播放条 ----
+function updateMini() {
+  const show = current && st.dur > 0;
+  $('mini').classList.toggle('hidden', !show);
+  if (show) { $('miniTitle').textContent = pad(current.n) + ' ' + current.title; $('miniPlay').textContent = st.playing ? '❚❚' : '▶'; }
+}
+$('mini').onclick = e => { if (e.target.id !== 'miniPlay' && current) openEpisode(current); };
+$('miniPlay').onclick = () => { player.toggle(); setTimeout(poll, 60); };
+
+// ---- 状态轮询 + 保存进度 ----
+function poll() {
+  const s = player.state();
+  if (!s) return;
+  st = s;
+  $('play').textContent = s.playing ? '❚❚' : '▶';
+  if (!seeking) {
+    $('cur').textContent = fmt(s.pos);
+    $('dur').textContent = fmt(s.dur);
+    seekEl.value = s.dur ? Math.round(s.pos / s.dur * 1000) : 0;
+  }
+  if (!$('listScreen').classList.contains('hidden')) updateMini();
+}
+let lastSave = 0;
+function saveProgress(done) {
+  if (!current || !st.dur) return;
+  const prog = store.get('progress', {});
+  const old = prog[current.n] || {};
+  prog[current.n] = { pos: Math.round(st.pos), dur: Math.round(st.dur), done: done || old.done || st.pos > st.dur - 15000 };
+  store.set('progress', prog);
+}
+setInterval(() => {
+  poll();
+  const now = Date.now();
+  if (st.playing && now - lastSave > 5000) { lastSave = now; saveProgress(false); }
+}, 250);
+document.addEventListener('visibilitychange', () => { if (document.hidden) saveProgress(false); });
+
+let toastTimer = 0;
+function toast(t, ms = 1500) {
+  const m = $('msg'); m.textContent = t; m.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => m.classList.remove('show'), ms);
+}
+
+/* ======================================================================
+ * 启动
+ * ==================================================================== */
+(async function init() {
+  applyPrefs();
+  setSpeed(store.get('speed', 1));
+  try {
+    const r = await fetch('transcripts.json');
+    EPISODES = (await r.json()).episodes;
+  } catch (e) {
+    $('list').textContent = '读取文本数据失败：' + e;
+    return;
+  }
+  refreshAudio();
+  // 如果原生播放器正在放（比如锁屏后回来），恢复当前剧集
+  const s = player.state();
+  if (native && s && s.name) {
+    const m = s.name.match(/\[([A-Za-z0-9_-]{11})\]/);
+    const e = m && EPISODES.find(x => x.yt === m[1]);
+    if (e) { current = e; st = s; updateMini(); }
+  }
+})();
+</script>
+</body>
+</html>
