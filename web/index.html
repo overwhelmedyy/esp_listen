@@ -8,10 +8,16 @@
   :root {
     --bg: #faf7f2; --card: #ffffff; --fg: #1f1d1a; --muted: #8a847b; --line: #e8e2d8;
     --accent: #c2410c; --accent-soft: #fde7da; --en: #6b665e; --panel: #ffffff;
+    --ms: #1d4ed8; --fs: #dc2626; --mp: #0e7490; --fp: #c026d3;
+    --g-line: #ea580c; --c-line: #16a34a; --od: rgba(34,197,94,.16); --oi: rgba(147,51,234,.16);
+    --cur: #fff1b8; --target: #fde68a;
   }
   @media (prefers-color-scheme: dark) {
     :root { --bg: #171614; --card: #211f1c; --fg: #ece8e1; --muted: #8f897f; --line: #34312c;
-            --accent: #fb923c; --accent-soft: #3b2417; --en: #a39d93; --panel: #1e1c19; }
+            --accent: #fb923c; --accent-soft: #3b2417; --en: #a39d93; --panel: #1e1c19;
+            --ms: #60a5fa; --fs: #f87171; --mp: #22d3ee; --fp: #e879f9;
+            --g-line: #fb923c; --c-line: #4ade80; --od: rgba(74,222,128,.18); --oi: rgba(192,132,252,.2);
+            --cur: #4a3f17; --target: #5c4a12; }
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
@@ -21,13 +27,13 @@
   .hidden { display: none !important; }
 
   /* ---------- 顶栏 ---------- */
-  .bar { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); background: var(--bg); flex: none; }
-  .bar h1 { font-size: 19px; margin: 0; flex: 1; }
-  .bar .title { flex: 1; min-width: 0; font-weight: 600; font-size: 15px; line-height: 1.3;
+  .bar { display: flex; align-items: center; gap: 4px; padding: 8px 8px; border-bottom: 1px solid var(--line); background: var(--bg); flex: none; }
+  .bar h1 { font-size: 19px; margin: 0 0 0 6px; flex: 1; }
+  .bar .title { flex: 1; min-width: 0; font-weight: 600; font-size: 14px; line-height: 1.3;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .iconbtn { min-width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; font-size: 15px; font-weight: 600; }
+  .iconbtn { min-width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; font-size: 15px; font-weight: 600; }
   .iconbtn:active { background: var(--line); }
-  .pill { padding: 0 12px; height: 34px; border-radius: 17px; border: 1px solid var(--line); font-size: 14px; }
+  .pill { padding: 0 12px; height: 34px; border-radius: 17px; border: 1px solid var(--line); font-size: 14px; white-space: nowrap; }
   .pill.on { background: var(--accent); border-color: var(--accent); color: #fff; }
 
   /* ---------- 列表页 ---------- */
@@ -39,7 +45,7 @@
   .ep:active { background: var(--line); }
   .ep .num { font: 600 13px ui-monospace, monospace; color: var(--accent); width: 40px; flex: none; }
   .ep .t { flex: 1; min-width: 0; font-size: 15px; line-height: 1.35; }
-  .ep .meta { font-size: 12px; color: var(--muted); margin-top: 3px; display: flex; gap: 8px; align-items: center; }
+  .ep .meta { font-size: 12px; color: var(--muted); margin-top: 3px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .ep .prog { height: 3px; background: var(--line); border-radius: 2px; width: 60px; overflow: hidden; }
   .ep .prog i { display: block; height: 100%; background: var(--accent); }
   .ep.noaudio .t { opacity: .5; }
@@ -51,31 +57,87 @@
   #mini .t { flex: 1; min-width: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #miniPlay { width: 48px; height: 48px; border-radius: 24px; background: var(--accent); color: #fff; font-size: 20px; }
 
-  /* ---------- 播放页 ---------- */
-  #text { flex: 1; overflow-y: auto; padding: 16px 18px 24px; -webkit-overflow-scrolling: touch; }
+  /* ---------- 文本 ---------- */
+  #text { flex: 1; overflow-y: auto; padding: 14px 16px 30px; -webkit-overflow-scrolling: touch; }
   .para { margin: 0 0 18px; }
   .spk { font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 2px; letter-spacing: .02em; }
-  .es { font-size: var(--fs, 19px); line-height: 1.6; }
-  .en { font-size: calc(var(--fs, 19px) * .78); line-height: 1.5; color: var(--en); margin-top: 4px; }
+  .es { font-size: var(--fs-size, 19px); line-height: 1.85; }
+  .en { font-size: calc(var(--fs-size, 19px) * .78); line-height: 1.5; color: var(--en); margin-top: 4px; }
   body.no-en .en { display: none; }
   .note { color: var(--muted); font-size: 14px; padding: 8px 0 16px; }
+  .sent { border-radius: 4px; transition: background .25s; }
+  .sent.cur { background: var(--cur); }
+  .w { cursor: pointer; border-radius: 3px; }
+  .w.sel { outline: 2px solid var(--accent); outline-offset: 1px; }
+  /* 性数颜色：只给词尾上色 */
+  body.l-gn .ms .e { color: var(--ms); font-weight: 600; }
+  body.l-gn .fs .e { color: var(--fs); font-weight: 600; }
+  body.l-gn .mp .e { color: var(--mp); font-weight: 600; }
+  body.l-gn .fp .e { color: var(--fp); font-weight: 600; }
+  /* 语法结构：橙色虚线下划线；固定搭配：绿色实线下划线 */
+  body.l-g .w.g { text-decoration: underline dashed var(--g-line); text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
+  body.l-c .w.c { text-decoration: underline solid var(--c-line); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+  body.l-g.l-c .w.g.c { text-decoration: underline double var(--c-line); }
+  /* 宾语：浅色底 */
+  body.l-o .w.od { background: var(--od); }
+  body.l-o .w.oi { background: var(--oi); }
 
-  #panel { flex: none; background: var(--panel); border-top: 1px solid var(--line); padding: 8px 14px 12px; }
+  /* 对齐模式 */
+  body.align .sent { cursor: pointer; }
+  body.align .sent.done { box-shadow: inset 3px 0 0 var(--c-line); padding-left: 3px; }
+  body.align .sent.target { background: var(--target); }
+
+  /* ---------- 底部控制面板 ---------- */
+  #panel { flex: none; background: var(--panel); border-top: 1px solid var(--line); padding: 6px 14px 10px; }
   #seekRow { display: flex; align-items: center; gap: 10px; font: 12px ui-monospace, monospace; color: var(--muted); }
   #seek { flex: 1; accent-color: var(--accent); height: 28px; }
-  #ctrlRow { display: flex; justify-content: space-between; align-items: center; margin: 6px 0 10px; }
+  #ctrlRow { display: flex; justify-content: space-between; align-items: center; margin: 4px 0 8px; }
   .skip { width: 60px; height: 60px; border-radius: 30px; background: var(--card); border: 1px solid var(--line);
     display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
   .skip b { font-size: 19px; }
   .skip small { font-size: 10px; color: var(--muted); margin-top: 2px; }
-  .skip:active, #play:active { transform: scale(.94); }
-  #play { width: 78px; height: 78px; border-radius: 39px; background: var(--accent); color: #fff; font-size: 30px;
+  .skip:active, #play:active, #markBtn:active { transform: scale(.94); }
+  #play { width: 76px; height: 76px; border-radius: 38px; background: var(--accent); color: #fff; font-size: 30px;
     box-shadow: 0 4px 14px rgba(194,65,12,.35); display: grid; place-items: center; }
   #speedRow { display: flex; gap: 6px; }
   #speedRow button { flex: 1; height: 40px; border-radius: 10px; border: 1px solid var(--line); font-size: 15px; font-weight: 600; }
   #speedRow button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  #alignRow { display: none; gap: 6px; margin-bottom: 8px; align-items: stretch; }
+  body.align #alignRow { display: flex; }
+  #alignRow button { height: 52px; border-radius: 12px; border: 1px solid var(--line); font-size: 14px; font-weight: 600; padding: 0 10px; }
+  #markBtn { flex: 1; background: #16a34a !important; border-color: #16a34a !important; color: #fff; font-size: 17px !important; }
+  #alignInfo { font-size: 12px; color: var(--muted); text-align: center; margin: -2px 0 6px; display: none; }
+  body.align #alignInfo { display: block; }
+
+  /* ---------- 弹出卡片 ---------- */
+  .sheet-bg { position: fixed; inset: 0; background: rgba(0,0,0,.25); z-index: 20; }
+  .sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 21; background: var(--panel); border-radius: 16px 16px 0 0;
+    box-shadow: 0 -8px 30px rgba(0,0,0,.18); max-height: 62vh; overflow-y: auto; padding: 8px 18px 18px; }
+  .sheet .grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 2px auto 10px; }
+  .sheet h2 { margin: 0 0 2px; font-size: 22px; }
+  .sheet h2 .lemma { font-size: 15px; font-weight: 400; color: var(--muted); margin-left: 8px; }
+  .sheet .sec { border-top: 1px solid var(--line); padding: 10px 0 2px; margin-top: 10px; }
+  .sheet .lbl { font-size: 12px; font-weight: 700; letter-spacing: .03em; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+  .sheet .lbl i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
+  .sheet .zh { font-size: 17px; line-height: 1.5; }
+  .sheet .en2 { font-size: 14px; color: var(--muted); line-height: 1.45; margin-top: 2px; }
+  .sheet .desc { font-size: 15px; line-height: 1.55; white-space: pre-line; }
+  .sheet .ttl { font-weight: 600; font-size: 15px; }
+  .sheet .acts { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .sheet .acts button { flex: 1; min-width: 120px; height: 44px; border-radius: 10px; border: 1px solid var(--line); font-size: 14px; font-weight: 600; }
+  .sheet .acts button.pri { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; gap: 12px; }
+  .row small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .switch { width: 48px; height: 28px; border-radius: 14px; background: var(--line); position: relative; flex: none; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 11px; background: #fff; transition: left .15s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .switch.on { background: var(--accent); }
+  .switch.on::after { left: 23px; }
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 13px; margin-top: 4px; }
+  .legend span b { font-weight: 700; }
+  textarea { width: 100%; height: 120px; font: 12px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--fg); }
+
   #msg { position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%); background: rgba(0,0,0,.78); color: #fff;
-    padding: 10px 18px; border-radius: 10px; font-size: 15px; pointer-events: none; opacity: 0; transition: opacity .2s; z-index: 9; }
+    padding: 10px 18px; border-radius: 10px; font-size: 15px; pointer-events: none; opacity: 0; transition: opacity .2s; z-index: 30; max-width: 80vw; text-align: center; }
   #msg.show { opacity: 1; }
 </style>
 </head>
@@ -85,6 +147,7 @@
 <section id="listScreen" class="screen">
   <div class="bar">
     <h1>西语听力</h1>
+    <button class="iconbtn" id="listSettings" aria-label="设置">⚙</button>
   </div>
   <div id="folderRow">
     <span id="folderInfo">还没有选择音频文件夹</span>
@@ -97,6 +160,7 @@
     <button id="miniPlay">▶</button>
   </div>
   <input type="file" id="dirInput" webkitdirectory multiple class="hidden">
+  <input type="file" id="importInput" accept=".json,application/json" class="hidden">
 </section>
 
 <!-- ========== 播放页 ========== -->
@@ -104,12 +168,18 @@
   <div class="bar">
     <button class="iconbtn" id="backBtn" aria-label="返回">←</button>
     <div class="title" id="pTitle"></div>
-    <button class="iconbtn" id="fontDown" aria-label="缩小字号">A−</button>
-    <button class="iconbtn" id="fontUp" aria-label="放大字号">A+</button>
-    <button class="pill on" id="enBtn">EN</button>
+    <button class="pill" id="alignBtn">对齐</button>
+    <button class="iconbtn" id="settingsBtn" aria-label="设置">⚙</button>
   </div>
   <div id="text"></div>
   <div id="panel">
+    <div id="alignInfo"></div>
+    <div id="alignRow">
+      <button id="undoBtn">撤销</button>
+      <button id="markBtn">标记本句开始</button>
+      <button id="nudgeBack">−0.2s</button>
+      <button id="nudgeFwd">+0.2s</button>
+    </div>
     <div id="seekRow">
       <span id="cur">0:00</span>
       <input type="range" id="seek" min="0" max="1000" value="0">
@@ -126,25 +196,33 @@
   </div>
 </section>
 
+<div id="sheetBg" class="sheet-bg hidden"></div>
+<div id="sheet" class="sheet hidden"></div>
 <div id="msg"></div>
 
 <script>
 'use strict';
 const $ = id => document.getElementById(id);
 const SPEEDS = [0.75, 0.85, 1, 1.15, 1.25, 1.5];
+const REACTION_MS = 300;            // 标记时自动往前补偿的反应时间
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
 };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-let EPISODES = [];          // 来自 transcripts.json
-let audioByYt = {};         // YouTube ID -> 音频文件名（或浏览器里的 File）
-let current = null;         // 当前打开/播放的剧集
+let EPISODES = [];
+let LEX = null;               // 词表（lex.json），第一次打开注释时加载
+let audioByYt = {};
+let current = null;           // 当前剧集
+let ann = null;               // 当前剧集的注释数据
+let sentences = [];           // 当前剧集的句子：[{p, t0, t1, el}]
 let st = { pos: 0, dur: 0, playing: false };
 let seeking = false;
+let curSent = -1;
 
 /* ======================================================================
- * 播放器适配层：在 app 里用原生播放器（window.Android），在浏览器里用 <audio>
+ * 播放器适配层：app 里用原生播放器（window.Android），浏览器里用 <audio>
  * ==================================================================== */
 const native = window.Android && typeof window.Android.load === 'function';
 const player = native ? {
@@ -153,6 +231,7 @@ const player = native ? {
   load(file, startMs) { Android.load(file, Math.round(startMs)); },
   toggle() { Android.toggle(); },
   play() { Android.play(); },
+  pause() { Android.pause(); },
   seekTo(ms) { Android.seekTo(Math.round(ms)); },
   seekBy(ms) { Android.seekBy(Math.round(ms)); },
   speed(x) { Android.setSpeed(x); },
@@ -164,16 +243,17 @@ const player = native ? {
   return {
     pick() { $('dirInput').click(); },
     setFiles(fs) { files = fs; },
-    list() { return files.map(f => ({ name: f.name, file: f })); },
+    list() { return files.map(f => ({ name: f.name })); },
     load(entry, startMs) {
       const f = files.find(x => x.name === entry);
       if (!f) return;
       if (au.src) URL.revokeObjectURL(au.src);
       au.src = URL.createObjectURL(f);
-      au.addEventListener('loadedmetadata', () => { au.currentTime = startMs / 1000; au.play(); }, { once: true });
+      au.addEventListener('loadedmetadata', () => { au.currentTime = startMs / 1000; au.play().catch(() => {}); }, { once: true });
     },
-    toggle() { au.paused ? au.play() : au.pause(); },
-    play() { au.play(); },
+    toggle() { au.paused ? au.play().catch(() => {}) : au.pause(); },
+    play() { au.play().catch(() => {}); },
+    pause() { au.pause(); },
     seekTo(ms) { au.currentTime = Math.max(0, ms / 1000); },
     seekBy(ms) { au.currentTime = Math.max(0, Math.min(au.duration || 0, au.currentTime + ms / 1000)); },
     speed(x) { au.playbackRate = x; },
@@ -186,11 +266,9 @@ $('dirInput').addEventListener('change', e => {
   player.setFiles([...e.target.files].filter(f => /\.(mp3|m4a|aac|ogg|opus|wav)$/i.test(f.name)));
   refreshAudio();
 });
-// 原生选完文件夹后回调
 window.onFolderPicked = () => refreshAudio();
-// 原生播放结束等事件
 window.onPlayerEvent = ev => {
-  if (ev === 'completed') { saveProgress(true); }
+  if (ev === 'completed') saveProgress(true);
   if (ev && ev.startsWith && ev.startsWith('error')) toast('无法播放：' + ev.slice(6));
 };
 
@@ -215,10 +293,12 @@ function refreshAudio() {
  * ==================================================================== */
 const pad = n => 'E' + String(n).padStart(3, '0');
 const fmt = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+const fmt1 = ms => { const s = Math.max(0, ms / 1000); return `${Math.floor(s / 60)}:${(s % 60).toFixed(1).padStart(4, '0')}`; };
 
 function renderList() {
   const q = $('search').value.trim().toLowerCase();
   const prog = store.get('progress', {});
+  const align = store.get('align', {});
   const frag = document.createDocumentFragment();
   for (const e of EPISODES) {
     const label = pad(e.n) + ' ' + e.title;
@@ -231,6 +311,8 @@ function renderList() {
     div.querySelector('.t div').textContent = e.title || '(无标题)';
     const meta = div.querySelector('.meta');
     if (e.kind === 'exercise') meta.insertAdjacentHTML('beforeend', '<span class="tag">只有练习题</span>');
+    const al = align[e.n] || (BUILTIN_ALIGN[e.n] && BUILTIN_ALIGN[e.n]);
+    if (al && al.filter(x => x != null).length) meta.insertAdjacentHTML('beforeend', '<span class="tag">已对齐</span>');
     if (!has) meta.insertAdjacentHTML('beforeend', '<span>无音频</span>');
     if (p && p.dur) {
       const pct = p.done ? 100 : Math.min(100, Math.round(p.pos / p.dur * 100));
@@ -245,51 +327,128 @@ $('search').addEventListener('input', renderList);
 $('pickBtn').onclick = () => player.pick();
 
 /* ======================================================================
- * 播放页
+ * 对齐数据：每集一个数组，按句子顺序存开始时间（毫秒），没标的是 null
+ * 优先用本机标注，没有的话用打包进 app 的（web/align.json）
  * ==================================================================== */
-function openEpisode(e) {
+let BUILTIN_ALIGN = {};
+function getAlign(n) {
+  const a = store.get('align', {})[n];
+  return a ? a.slice() : (BUILTIN_ALIGN[n] ? BUILTIN_ALIGN[n].slice() : []);
+}
+function setAlign(n, arr) {
+  const all = store.get('align', {});
+  all[n] = arr.map(x => x == null ? null : Math.round(x));
+  store.set('align', all);
+}
+
+/* ======================================================================
+ * 播放页：渲染文本
+ * ==================================================================== */
+async function openEpisode(e) {
   const file = e.yt && audioByYt[e.yt];
   const sameAsPlaying = current && current.n === e.n;
   if (current && !sameAsPlaying) saveProgress(false);
   current = e;
   $('pTitle').textContent = pad(e.n) + ' ' + e.title;
-  renderText(e);
   showPlayer(true);
-  if (sameAsPlaying) return;
-  if (file) {
-    const p = store.get('progress', {})[e.n];
-    const start = p && !p.done ? Math.max(0, p.pos - 2000) : 0;   // 回退 2 秒接着听
-    player.load(file, start);
-    player.speed(store.get('speed', 1));
-  } else {
-    toast('这一集没有找到音频文件');
+  await renderText(e);
+  if (!sameAsPlaying) {
+    if (file) {
+      const p = store.get('progress', {})[e.n];
+      const start = p && !p.done ? Math.max(0, p.pos - 2000) : 0;
+      player.load(file, start);
+      player.speed(store.get('speed', 1));
+    } else {
+      toast('这一集没有找到音频文件');
+    }
+    store.set('last', e.n);
   }
-  store.set('last', e.n);
 }
 
-function renderText(e) {
+async function loadJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+async function renderText(e) {
   const box = $('text');
   box.replaceChildren();
+  ann = null; sentences = []; curSent = -1;
+  try {
+    if (!LEX) LEX = await loadJSON('lex.json');
+    ann = await loadJSON(`ann/${e.n}.json`);
+  } catch (err) { ann = null; }
+
   if (e.kind === 'exercise') {
     const n = document.createElement('div'); n.className = 'note';
     n.textContent = '这一集的 PDF 只有练习题，没有逐字稿：';
     box.append(n);
   }
   const frag = document.createDocumentFragment();
-  for (const p of e.paras) {
+  e.paras.forEach((p, pi) => {
     const d = document.createElement('div'); d.className = 'para';
     if (p.s) { const s = document.createElement('div'); s.className = 'spk'; s.textContent = p.s; d.append(s); }
-    const es = document.createElement('div'); es.className = 'es'; es.textContent = p.es; d.append(es);
+    const es = document.createElement('div'); es.className = 'es';
+    const ap = ann && ann.paras[pi];
+    if (ap) {
+      es.innerHTML = renderPara(ap, pi);
+      es.querySelectorAll('.sent').forEach(el => { sentences[+el.dataset.s].el = el; });
+    } else {
+      es.textContent = p.es;
+    }
+    d.append(es);
     if (p.en) { const en = document.createElement('div'); en.className = 'en'; en.textContent = p.en; d.append(en); }
     frag.append(d);
-  }
+  });
   box.append(frag);
   const y = store.get('scroll', {})[e.n] || 0;
   requestAnimationFrame(() => { box.scrollTop = y; });
+  updateAlignUI();
 }
 
-// 记住每集文本滚动位置
-let scrollTimer = 0;
+/** 一段 → HTML：按句子包 <span class="sent">，每个词包 <span class="w"> */
+function renderPara(ap, pi) {
+  const starts = new Set(ap.s);
+  let html = '', open = false;
+  ap.t.forEach((t, ti) => {
+    if (starts.has(ti)) {
+      if (open) html += '</span>';
+      const si = sentences.length;
+      sentences.push({ p: pi, t0: ti });
+      html += `<span class="sent" data-s="${si}">`;
+      open = true;
+    }
+    const [text, ws, info] = t;
+    if (info) {
+      const cls = ['w'];
+      if (info.c) cls.push(info.c);
+      if (info.o) cls.push(info.o);
+      if (info.g) {
+        if (info.g.some(g => ann.notes[g].k === 'g')) cls.push('g');
+        if (info.g.some(g => ann.notes[g].k === 'c')) cls.push('c');
+      }
+      html += `<span class="${cls.join(' ')}" data-i="${pi}:${ti}">${info.c ? splitEnding(text) : esc(text)}</span>`;
+    } else if (/\p{L}/u.test(text)) {
+      html += `<span class="w" data-i="${pi}:${ti}">${esc(text)}</span>`;
+    } else {
+      html += esc(text);
+    }
+    if (ws) html += ' ';
+  });
+  if (open) html += '</span>';
+  return html;
+}
+
+/** 把词尾（-o/-a/-os/-as/-es/-s）包起来，用于性数上色；没有典型词尾就整个词上色 */
+function splitEnding(text) {
+  const m = text.match(/^(.*?)(os|as|es|o|a|e|s)$/i);
+  if (m && m[1].length >= 1) return esc(m[1]) + `<span class="e">${esc(m[2])}</span>`;
+  return `<span class="e">${esc(text)}</span>`;
+}
+
+// 记住每集文本滚动位置；手动滚动后暂停自动跟随几秒
+let scrollTimer = 0, userScrollUntil = 0;
 $('text').addEventListener('scroll', () => {
   clearTimeout(scrollTimer);
   scrollTimer = setTimeout(() => {
@@ -297,20 +456,295 @@ $('text').addEventListener('scroll', () => {
     const s = store.get('scroll', {}); s[current.n] = Math.round($('text').scrollTop); store.set('scroll', s);
   }, 300);
 }, { passive: true });
+['touchstart', 'wheel'].forEach(ev => $('text').addEventListener(ev, () => { userScrollUntil = Date.now() + 4000; }, { passive: true }));
 
+/* ======================================================================
+ * 点词 → 注释卡片
+ * ==================================================================== */
+$('text').addEventListener('click', ev => {
+  if (document.body.classList.contains('align')) {
+    const s = ev.target.closest('.sent');
+    if (s) setTarget(+s.dataset.s);
+    return;
+  }
+  const w = ev.target.closest('.w');
+  if (!w || !ann) return;
+  const [pi, ti] = w.dataset.i.split(':').map(Number);
+  showWord(pi, ti, w);
+});
+
+function showWord(pi, ti, el) {
+  document.querySelectorAll('.w.sel').forEach(x => x.classList.remove('sel'));
+  el.classList.add('sel');
+  const [text, , info = {}] = ann.paras[pi].t[ti];
+  const lx = info.l != null && LEX ? LEX[info.l] : null;
+  let h = '<div class="grab"></div>';
+  h += `<h2>${esc(text)}${lx && lx.w.toLowerCase() !== text.toLowerCase() ? `<span class="lemma">base form: ${esc(lx.w)}</span>` : ''}</h2>`;
+  if (lx) {
+    h += `<div class="sec" style="border:0;margin-top:2px;padding-top:4px"><div class="lbl" style="color:var(--muted)">${esc(lx.p || '')}${lx.g ? ' · ' + esc(lx.g) : ''}</div>`;
+    if (lx.zh) h += `<div class="zh">${esc(lx.zh)}</div>`;
+    if (lx.en) h += `<div class="en2">${esc(lx.en)}</div>`;
+    h += '</div>';
+  }
+  if (info.v) {
+    const [main, hint] = info.v.split('\n');
+    h += `<div class="sec"><div class="lbl">Verb form</div><div class="ttl">${esc(main)}</div>${hint ? `<div class="desc" style="color:var(--muted);font-size:14px">${esc(hint)}</div>` : ''}</div>`;
+  }
+  if (info.c) {
+    const names = { ms: 'masculine · singular', fs: 'feminine · singular', mp: 'masculine · plural', fp: 'feminine · plural' };
+    h += `<div class="sec"><div class="lbl"><i style="background:var(--${info.c})"></i>Gender &amp; number</div><div class="desc">${names[info.c]}</div></div>`;
+  }
+  if (info.o) {
+    h += `<div class="sec"><div class="lbl"><i style="background:var(--${info.o})"></i>${info.o === 'od' ? 'Direct object' : 'Indirect object'}</div><div class="desc">${esc(info.r || '')}</div></div>`;
+  }
+  for (const g of info.g || []) {
+    const n = ann.notes[g];
+    const color = n.k === 'g' ? 'var(--g-line)' : 'var(--c-line)';
+    h += `<div class="sec"><div class="lbl"><i style="background:${color}"></i>${n.k === 'g' ? 'Grammar' : 'Expression'}</div><div class="ttl">${esc(n.t)}</div><div class="desc">${esc(n.d)}</div></div>`;
+  }
+  const si = sentenceOf(pi, ti);
+  const al = getAlign(current.n);
+  h += '<div class="acts">';
+  if (si >= 0 && al[si] != null) h += `<button class="pri" data-act="playSent" data-s="${si}">▶ Play from this sentence</button>`;
+  h += `<button data-act="close">Close</button></div>`;
+  openSheet(h);
+}
+
+function sentenceOf(pi, ti) {
+  let r = -1;
+  sentences.forEach((s, i) => { if (s.p < pi || (s.p === pi && s.t0 <= ti)) r = i; });
+  return r;
+}
+
+function openSheet(html) {
+  $('sheet').innerHTML = html;
+  $('sheet').classList.remove('hidden'); $('sheetBg').classList.remove('hidden');
+  $('sheet').scrollTop = 0;
+}
+function closeSheet() {
+  $('sheet').classList.add('hidden'); $('sheetBg').classList.add('hidden');
+  document.querySelectorAll('.w.sel').forEach(x => x.classList.remove('sel'));
+}
+$('sheetBg').onclick = closeSheet;
+$('sheet').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-act]');
+  if (!b) return;
+  const act = b.dataset.act;
+  if (act === 'close') closeSheet();
+  if (act === 'playSent') {
+    const al = getAlign(current.n);
+    player.seekTo(al[+b.dataset.s]); player.play(); closeSheet();
+  }
+  if (act === 'toggle') { toggleLayer(b.dataset.key); renderSettings(); }
+  if (act === 'export') exportData();
+  if (act === 'import') importData();
+  if (act === 'clearAlign') clearAlign();
+  if (act === 'copy') { const ta = $('sheet').querySelector('textarea'); ta.select(); try { navigator.clipboard.writeText(ta.value); toast('已复制'); } catch {} }
+  if (act === 'fontUp' || act === 'fontDown') {
+    store.set('fontSize', Math.max(14, Math.min(30, store.get('fontSize', 19) + (act === 'fontUp' ? 1 : -1))));
+    applyPrefs(); renderSettings();
+  }
+});
+
+/* ======================================================================
+ * 设置：图层开关、字号、导出导入
+ * ==================================================================== */
+const LAYERS = [
+  { key: 'en', label: '英文翻译', def: true },
+  { key: 'gn', label: '性数颜色', sub: '名词、形容词、冠词、过去分词的词尾', def: true },
+  { key: 'g', label: '语法结构', sub: '橙色虚线下划线', def: true },
+  { key: 'c', label: '固定搭配', sub: '绿色下划线', def: true },
+  { key: 'o', label: '宾语', sub: '绿底 = 直接宾语，紫底 = 间接宾语', def: false },
+  { key: 'follow', label: '自动跟随', sub: '已对齐的集，播放时文本自动滚到当前句', def: true },
+];
+const layerOn = k => store.get('layers', {})[k] ?? LAYERS.find(l => l.key === k).def;
+function toggleLayer(k) { const s = store.get('layers', {}); s[k] = !layerOn(k); store.set('layers', s); applyPrefs(); }
+
+function renderSettings() {
+  let h = '<div class="grab"></div><h2 style="font-size:19px;margin-bottom:6px">显示设置</h2>';
+  for (const l of LAYERS) {
+    h += `<div class="row"><div>${l.label}${l.sub ? `<small>${l.sub}</small>` : ''}</div><button class="switch ${layerOn(l.key) ? 'on' : ''}" data-act="toggle" data-key="${l.key}"></button></div>`;
+  }
+  h += `<div class="row"><div>字号 <small>${store.get('fontSize', 19)}px</small></div><div style="display:flex;gap:8px"><button class="pill" data-act="fontDown">A−</button><button class="pill" data-act="fontUp">A+</button></div></div>`;
+  h += `<div class="sec"><div class="lbl">性数颜色说明</div><div class="legend">
+    <span style="color:var(--ms)"><b>■</b> 阳性单数</span><span style="color:var(--fs)"><b>■</b> 阴性单数</span>
+    <span style="color:var(--mp)"><b>■</b> 阳性复数</span><span style="color:var(--fp)"><b>■</b> 阴性复数</span></div></div>`;
+  h += `<div class="sec"><div class="lbl">对齐数据备份</div><div class="desc" style="font-size:13px;color:var(--muted)">导出所有已标注的时间（以及收听进度），换手机或重装前先备份；也可以把文件发给开发者打包进 app。</div>
+    <div class="acts"><button data-act="export">导出</button><button data-act="import">导入</button>${current ? '<button data-act="clearAlign">清除本集对齐</button>' : ''}</div></div>`;
+  h += '<div class="acts"><button data-act="close">完成</button></div>';
+  openSheet(h);
+}
+$('settingsBtn').onclick = renderSettings;
+$('listSettings').onclick = renderSettings;
+
+function applyPrefs() {
+  for (const l of LAYERS) document.body.classList.toggle('l-' + l.key, layerOn(l.key));
+  document.body.classList.toggle('no-en', !layerOn('en'));
+  document.documentElement.style.setProperty('--fs-size', store.get('fontSize', 19) + 'px');
+}
+
+function exportData() {
+  const data = { app: 'esp_listen', version: 1, exported: new Date().toISOString(),
+                 align: store.get('align', {}), progress: store.get('progress', {}) };
+  const text = JSON.stringify(data);
+  const name = `esp_listen_backup_${new Date().toISOString().slice(0, 10)}.json`;
+  if (native && Android.exportText) { Android.exportText(name, text); return; }
+  // 浏览器：尝试下载，同时显示文本可以复制
+  try {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = name; a.click();
+  } catch {}
+  openSheet(`<div class="grab"></div><h2 style="font-size:18px">导出的数据</h2><div class="desc" style="font-size:13px;color:var(--muted)">如果没有自动下载，可以复制下面的内容保存。</div><textarea readonly>${esc(text)}</textarea><div class="acts"><button class="pri" data-act="copy">复制</button><button data-act="close">关闭</button></div>`);
+}
+window.onExportDone = ok => toast(ok ? '已导出' : '导出取消');
+
+function importData() {
+  if (native && Android.importText) { Android.importText(); return; }
+  $('importInput').click();
+}
+$('importInput').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  window.onImportText(await f.text());
+  e.target.value = '';
+});
+window.onImportText = text => {
+  try {
+    const d = JSON.parse(text);
+    if (!d || d.app !== 'esp_listen') throw new Error('不是西语听力的备份文件');
+    const al = store.get('align', {});
+    let n = 0;
+    for (const [k, arr] of Object.entries(d.align || {})) { al[k] = arr; n++; }
+    store.set('align', al);
+    if (d.progress) store.set('progress', Object.assign(store.get('progress', {}), d.progress));
+    toast(`已导入 ${n} 集的对齐数据`);
+    closeSheet(); renderList();
+    if (current) renderText(current);
+  } catch (err) { toast('导入失败：' + err.message); }
+};
+
+function clearAlign() {
+  if (!current) return;
+  const all = store.get('align', {}); delete all[current.n]; store.set('align', all);
+  toast('已清除本集的对齐（如有内置对齐会恢复内置的）'); closeSheet(); updateAlignUI();
+}
+
+/* ======================================================================
+ * 对齐模式
+ * ==================================================================== */
+let alignTarget = 0;
+const undoStack = [];
+
+$('alignBtn').onclick = () => {
+  if (!sentences.length) { toast('这一集没有可以对齐的句子'); return; }
+  const on = !document.body.classList.contains('align');
+  document.body.classList.toggle('align', on);
+  $('alignBtn').classList.toggle('on', on);
+  if (on) {
+    const al = getAlign(current.n);
+    const first = sentences.findIndex((_, i) => al[i] == null);
+    setTarget(first < 0 ? 0 : first);
+    toast('对齐模式：听到高亮句子开始时，按「标记本句开始」', 2600);
+  } else {
+    sentences.forEach(s => s.el && s.el.classList.remove('target'));
+  }
+  updateAlignUI();
+};
+
+function setTarget(i) {
+  if (!sentences.length) return;
+  alignTarget = Math.max(0, Math.min(sentences.length - 1, i));
+  sentences.forEach((s, k) => s.el && s.el.classList.toggle('target', k === alignTarget));
+  const el = sentences[alignTarget].el;
+  if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  updateAlignUI();
+}
+
+$('markBtn').onclick = () => {
+  const s = player.state(); if (!s || !s.dur) { toast('先开始播放音频'); return; }
+  const al = getAlign(current.n);
+  const t = Math.max(0, s.pos - (s.playing ? REACTION_MS : 0));
+  undoStack.push({ i: alignTarget, prev: al[alignTarget] });
+  al[alignTarget] = t;
+  // 保证后面已标注的句子时间不早于这一句（重新标注时清掉矛盾的值）
+  for (let k = alignTarget + 1; k < al.length; k++) if (al[k] != null && al[k] < t) al[k] = null;
+  for (let k = 0; k < alignTarget; k++) if (al[k] != null && al[k] > t) al[k] = null;
+  setAlign(current.n, al);
+  if (alignTarget < sentences.length - 1) setTarget(alignTarget + 1); else { updateAlignUI(); toast('最后一句已标记'); }
+};
+$('undoBtn').onclick = () => {
+  const u = undoStack.pop(); if (!u) { toast('没有可以撤销的'); return; }
+  const al = getAlign(current.n); al[u.i] = u.prev; setAlign(current.n, al);
+  setTarget(u.i);
+};
+function nudge(ms) {
+  const al = getAlign(current.n);
+  // 微调：调整「上一个刚标记的句子」；如果当前目标句已经有时间，就调整它
+  const i = al[alignTarget] != null ? alignTarget : (undoStack.length ? undoStack[undoStack.length - 1].i : alignTarget);
+  if (al[i] == null) { toast('这一句还没有标记'); return; }
+  al[i] = Math.max(0, al[i] + ms); setAlign(current.n, al);
+  player.seekTo(al[i]); player.play();
+  toast(`第 ${i + 1} 句：${fmt1(al[i])}`, 900);
+  updateAlignUI();
+}
+$('nudgeBack').onclick = () => nudge(-200);
+$('nudgeFwd').onclick = () => nudge(200);
+
+function updateAlignUI() {
+  if (!current) return;
+  const al = getAlign(current.n);
+  let done = 0;
+  sentences.forEach((s, i) => { const ok = al[i] != null; if (ok) done++; if (s.el) s.el.classList.toggle('done', ok); });
+  const tgt = al[alignTarget];
+  $('alignInfo').textContent = sentences.length
+    ? `已标记 ${done} / ${sentences.length} 句 · 当前第 ${alignTarget + 1} 句${tgt != null ? '（' + fmt1(tgt) + '）' : ''} · 点任意句子可以选中它重新标记`
+    : '';
+}
+
+/** 播放时根据对齐数据找当前句 */
+function sentenceAt(pos) {
+  const al = getAlign(current.n);
+  let best = -1, bestT = -1;
+  for (let i = 0; i < al.length; i++) {
+    const t = al[i];
+    if (t != null && t <= pos + 50 && t >= bestT) { best = i; bestT = t; }
+  }
+  return best;
+}
+function highlightSentence() {
+  if (!current || !sentences.length || document.body.classList.contains('align')) return;
+  const i = sentenceAt(st.pos);
+  if (i === curSent) return;
+  if (curSent >= 0 && sentences[curSent] && sentences[curSent].el) sentences[curSent].el.classList.remove('cur');
+  curSent = i;
+  if (i < 0 || !sentences[i].el) return;
+  const el = sentences[i].el;
+  el.classList.add('cur');
+  if (layerOn('follow') && Date.now() > userScrollUntil && st.playing) {
+    const box = $('text').getBoundingClientRect(), r = el.getBoundingClientRect();
+    if (r.top < box.top + 40 || r.bottom > box.bottom - 40) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+}
+
+/* ======================================================================
+ * 页面切换、播放控制
+ * ==================================================================== */
 function showPlayer(on) {
   $('playerScreen').classList.toggle('hidden', !on);
   $('listScreen').classList.toggle('hidden', on);
-  if (!on) { renderList(); updateMini(); }
+  if (!on) {
+    document.body.classList.remove('align'); $('alignBtn').classList.remove('on');
+    closeSheet(); renderList(); updateMini();
+  }
 }
 $('backBtn').onclick = () => showPlayer(false);
-window.appBack = () => {      // 安卓返回键
+window.appBack = () => {
+  if (!$('sheet').classList.contains('hidden')) { closeSheet(); return true; }
+  if (document.body.classList.contains('align')) { $('alignBtn').click(); return true; }
   if (!$('playerScreen').classList.contains('hidden')) { showPlayer(false); return true; }
   return false;
 };
 
-// ---- 控制按钮 ----
-$('play').onclick = () => { player.toggle(); poll(); };
+$('play').onclick = () => { player.toggle(); setTimeout(poll, 60); };
 document.querySelectorAll('[data-skip]').forEach(b => {
   b.onclick = () => {
     const sec = +b.dataset.skip;
@@ -334,17 +768,6 @@ const seekEl = $('seek');
 seekEl.addEventListener('input', () => { seeking = true; $('cur').textContent = fmt(seekEl.value / 1000 * st.dur); });
 seekEl.addEventListener('change', () => { player.seekTo(seekEl.value / 1000 * st.dur); seeking = false; setTimeout(poll, 60); });
 
-// ---- 英文开关 / 字号 ----
-function applyPrefs() {
-  document.body.classList.toggle('no-en', !store.get('showEn', true));
-  $('enBtn').classList.toggle('on', store.get('showEn', true));
-  document.documentElement.style.setProperty('--fs', store.get('fontSize', 19) + 'px');
-}
-$('enBtn').onclick = () => { store.set('showEn', !store.get('showEn', true)); applyPrefs(); };
-$('fontUp').onclick = () => { store.set('fontSize', Math.min(30, store.get('fontSize', 19) + 1)); applyPrefs(); };
-$('fontDown').onclick = () => { store.set('fontSize', Math.max(14, store.get('fontSize', 19) - 1)); applyPrefs(); };
-
-// ---- 迷你播放条 ----
 function updateMini() {
   const show = current && st.dur > 0;
   $('mini').classList.toggle('hidden', !show);
@@ -353,7 +776,6 @@ function updateMini() {
 $('mini').onclick = e => { if (e.target.id !== 'miniPlay' && current) openEpisode(current); };
 $('miniPlay').onclick = () => { player.toggle(); setTimeout(poll, 60); };
 
-// ---- 状态轮询 + 保存进度 ----
 function poll() {
   const s = player.state();
   if (!s) return;
@@ -365,6 +787,7 @@ function poll() {
     seekEl.value = s.dur ? Math.round(s.pos / s.dur * 1000) : 0;
   }
   if (!$('listScreen').classList.contains('hidden')) updateMini();
+  else highlightSentence();
 }
 let lastSave = 0;
 function saveProgress(done) {
@@ -378,7 +801,7 @@ setInterval(() => {
   poll();
   const now = Date.now();
   if (st.playing && now - lastSave > 5000) { lastSave = now; saveProgress(false); }
-}, 250);
+}, 200);
 document.addEventListener('visibilitychange', () => { if (document.hidden) saveProgress(false); });
 
 let toastTimer = 0;
@@ -394,14 +817,13 @@ function toast(t, ms = 1500) {
   applyPrefs();
   setSpeed(store.get('speed', 1));
   try {
-    const r = await fetch('transcripts.json');
-    EPISODES = (await r.json()).episodes;
+    EPISODES = (await loadJSON('transcripts.json')).episodes;
   } catch (e) {
     $('list').textContent = '读取文本数据失败：' + e;
     return;
   }
+  try { BUILTIN_ALIGN = await loadJSON('align.json'); } catch { BUILTIN_ALIGN = {}; }
   refreshAudio();
-  // 如果原生播放器正在放（比如锁屏后回来），恢复当前剧集
   const s = player.state();
   if (native && s && s.name) {
     const m = s.name.match(/\[([A-Za-z0-9_-]{11})\]/);

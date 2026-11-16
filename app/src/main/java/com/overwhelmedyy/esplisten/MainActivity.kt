@@ -50,6 +50,29 @@ class MainActivity : ComponentActivity() {
 
     private val askNotif = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
+    // 导出/导入对齐数据备份（系统文件选择器）
+    private var pendingExport: String? = null
+    private val exportDoc = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        val text = pendingExport
+        pendingExport = null
+        var ok = false
+        if (uri != null && text != null) {
+            ok = try {
+                contentResolver.openOutputStream(uri, "wt")?.use { it.write(text.toByteArray(Charsets.UTF_8)) }
+                true
+            } catch (_: Exception) { false }
+        }
+        web.evaluateJavascript("window.onExportDone && window.onExportDone($ok)", null)
+    }
+    private val importDoc = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri == null) return@registerForActivityResult
+        val text = try {
+            contentResolver.openInputStream(uri)?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }
+        } catch (_: Exception) { null }
+        if (text != null) web.evaluateJavascript("window.onImportText && window.onImportText(${JSONObject.quote(text)})", null)
+        else Toast.makeText(this, "读取文件失败", Toast.LENGTH_LONG).show()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AudioEngine.init(this)
@@ -219,6 +242,21 @@ class MainActivity : ComponentActivity() {
         @JavascriptInterface fun seekBy(ms: Int) = AudioEngine.seekBy(ms)
         @JavascriptInterface fun setSpeed(x: Float) = AudioEngine.setSpeed(x)
         @JavascriptInterface fun state(): String = AudioEngine.stateJson()
+
+        @JavascriptInterface
+        fun exportText(fileName: String, text: String) = runOnUiThread {
+            pendingExport = text
+            try { exportDoc.launch(fileName) } catch (_: ActivityNotFoundException) {
+                Toast.makeText(this@MainActivity, "系统没有可用的文件管理器", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        @JavascriptInterface
+        fun importText() = runOnUiThread {
+            try { importDoc.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) } catch (_: ActivityNotFoundException) {
+                Toast.makeText(this@MainActivity, "系统没有可用的文件管理器", Toast.LENGTH_LONG).show()
+            }
+        }
 
         @JavascriptInterface
         fun appVersion(): String = try {

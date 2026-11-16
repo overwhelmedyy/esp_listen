@@ -47,7 +47,7 @@ jobs:
           python3 - "$APK" <<'PY' || exit 1
           import sys, zipfile
           names = set(zipfile.ZipFile(sys.argv[1]).namelist())
-          missing = [n for n in ["assets/index.html", "assets/transcripts.json"] if n not in names]
+          missing = [n for n in ["assets/index.html", "assets/transcripts.json", "assets/lex.json", "assets/ann/1.json", "assets/align.json"] if n not in names]
           if missing:
               print(f"::error title=APK contents::missing {missing}")
               sys.exit(1)
