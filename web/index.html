@@ -183,10 +183,10 @@
   <div id="panel">
     <div id="alignInfo"></div>
     <div id="alignRow">
-      <button id="undoBtn">撤销</button>
       <button id="markBtn">标记 ▸</button>
       <button id="nudgeBack">−0.2s</button>
       <button id="nudgeFwd">+0.2s</button>
+      <button id="undoBtn">撤销</button>
     </div>
     <div id="seekRow">
       <span id="cur">0:00</span>
@@ -212,7 +212,6 @@
 'use strict';
 const $ = id => document.getElementById(id);
 const SPEEDS = [0.75, 0.85, 1, 1.15, 1.25, 1.5];
-const REACTION_MS = 300;            // 标记时自动往前补偿的反应时间
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
@@ -585,7 +584,9 @@ $('sheet').addEventListener('click', ev => {
   if (act === 'back') renderSettings();
   if (act === 'export') exportData();
   if (act === 'import') importData();
-  if (act === 'clearAlign') clearAlign();
+  if (act === 'clearAlign') clearAlignStep1();
+  if (act === 'clearAlign2') clearAlignStep2();
+  if (act === 'clearAlignDo') { if ($('clearInput') && $('clearInput').value.trim() === 'clear') clearAlign(); }
   if (act === 'copy') { const ta = $('sheet').querySelector('textarea'); ta.select(); try { navigator.clipboard.writeText(ta.value); toast('已复制'); } catch {} }
   if (act === 'fontUp' || act === 'fontDown') {
     store.set('fontSize', Math.max(14, Math.min(30, store.get('fontSize', 19) + (act === 'fontUp' ? 1 : -1))));
@@ -634,8 +635,9 @@ function renderHelp() {
   ]);
   h += sec('手动对齐', [
     '右上角「对齐」打开对齐模式，高亮的是正在听的句子，第一句从 0 秒开始',
-    '这句说完时按「标记 ▸」，当前时间记为下一句的开始，高亮移到下一句（自动往前补 0.3 秒反应时间）',
+    '这句说完时按「标记 ▸」，按下的时刻记为下一句的开始，高亮移到下一句',
     '撤销：取消上一次标记；−0.2s / +0.2s：微调刚标的分句点并从那里重播',
+    '设置 → 清除本集对齐：需要确认两次，并输入 clear',
     '点任意句子：从那句接着标（最好选已经有开始时间的句子）',
     '标好的集：播放时高亮当前句并自动跟随滚动；手动滑动文本后会暂停跟随几秒',
   ]);
@@ -706,6 +708,25 @@ window.onImportText = text => {
   } catch (err) { toast('导入失败：' + err.message); }
 };
 
+// 清除本集对齐：两次确认 + 输入 clear
+function clearAlignStep1() {
+  if (!current) return;
+  const n = getAlign(current.n).filter(x => x != null).length;
+  openSheet(`<div class="grab"></div><h2 style="font-size:18px">清除本集对齐？</h2>
+    <div class="desc">将删除「${esc(pad(current.n) + ' ' + current.title)}」已标记的 ${n} 个时间，无法恢复。建议先在设置里导出备份。</div>
+    <div class="acts"><button data-act="close">取消</button><button data-act="clearAlign2" style="color:#dc2626;border-color:#dc2626">继续</button></div>`);
+}
+function clearAlignStep2() {
+  openSheet(`<div class="grab"></div><h2 style="font-size:18px">再次确认</h2>
+    <div class="desc">请输入 <b>clear</b> 以确认清除：</div>
+    <input id="clearInput" autocomplete="off" autocapitalize="off" spellcheck="false"
+      style="width:100%;margin-top:10px;padding:10px 12px;font-size:16px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg)">
+    <div class="acts"><button data-act="close">取消</button><button id="clearDo" data-act="clearAlignDo" disabled
+      style="background:#dc2626;border-color:#dc2626;color:#fff;opacity:.4">清除</button></div>`);
+  const inp = $('clearInput'), btn = $('clearDo');
+  inp.addEventListener('input', () => { const ok = inp.value.trim() === 'clear'; btn.disabled = !ok; btn.style.opacity = ok ? 1 : .4; });
+  setTimeout(() => inp.focus(), 50);
+}
 function clearAlign() {
   if (!current) return;
   const all = store.get('align', {}); delete all[current.n]; store.set('align', all);
@@ -751,7 +772,7 @@ $('markBtn').onclick = () => {
   const al = getAlign(current.n);
   while (al.length < sentences.length) al.push(null);
   const next = alignTarget + 1;
-  const t = Math.max(0, s.pos - (s.playing ? REACTION_MS : 0));
+  const t = Math.max(0, s.pos);                 // 就取按下的时刻
   undoStack.push({ i: next, prev: al[next], prev0: al[0], from: alignTarget });
   if (al[0] == null) al[0] = 0;                 // 第一句默认从 0 秒开始
   al[next] = t;
