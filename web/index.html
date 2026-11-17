@@ -66,6 +66,14 @@
   body.no-en .en { display: none; }
   .note { color: var(--muted); font-size: 14px; padding: 8px 0 16px; }
   .sent { border-radius: 4px; transition: background .25s; }
+  #text { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  /* 已对齐句子开头的小播放键 */
+  .sp { display: none; vertical-align: 2px; width: 1.15em; height: 1.15em; margin-right: 3px; border-radius: 50%;
+        background: var(--accent-soft); color: var(--accent); font-size: .62em; line-height: 1.15em; text-align: center; cursor: pointer; }
+  body.l-sp .sent.done .sp { display: inline-block; }
+  body.align .sent .sp { display: none !important; }
+  .sp:active { background: var(--accent); color: #fff; }
+  .sent.pressed { background: var(--target); }
   .sent.cur { background: var(--cur); }
   .w { cursor: pointer; border-radius: 3px; }
   .w.sel { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -416,7 +424,7 @@ function renderPara(ap, pi) {
       if (open) html += '</span>';
       const si = sentences.length;
       sentences.push({ p: pi, t0: ti });
-      html += `<span class="sent" data-s="${si}">`;
+      html += `<span class="sent" data-s="${si}"><span class="sp" data-play="${si}">▶</span>`;
       open = true;
     }
     const [text, ws, info] = t;
@@ -461,7 +469,43 @@ $('text').addEventListener('scroll', () => {
 /* ======================================================================
  * 点词 → 注释卡片
  * ==================================================================== */
+function playSentence(si) {
+  const al = getAlign(current.n);
+  if (al[si] == null) { toast('这一句还没有对齐时间'); return false; }
+  player.seekTo(al[si]); player.play();
+  toast('▶ 第 ' + (si + 1) + ' 句', 700);
+  setTimeout(poll, 80);
+  return true;
+}
+
+// 长按任意词 → 从这句开始播放
+let pressTimer = 0, pressFired = false, pressStart = null;
+$('text').addEventListener('touchstart', ev => {
+  if (document.body.classList.contains('align')) return;
+  const s = ev.target.closest('.sent'); if (!s) return;
+  pressFired = false; pressStart = [ev.touches[0].clientX, ev.touches[0].clientY];
+  clearTimeout(pressTimer);
+  pressTimer = setTimeout(() => {
+    s.classList.add('pressed'); setTimeout(() => s.classList.remove('pressed'), 400);
+    pressFired = playSentence(+s.dataset.s) || true;
+    if (navigator.vibrate) try { navigator.vibrate(15); } catch {}
+  }, 450);
+}, { passive: true });
+$('text').addEventListener('touchmove', ev => {
+  if (!pressStart) return;
+  const t = ev.touches[0];
+  if (Math.abs(t.clientX - pressStart[0]) > 10 || Math.abs(t.clientY - pressStart[1]) > 10) clearTimeout(pressTimer);
+}, { passive: true });
+['touchend', 'touchcancel'].forEach(e => $('text').addEventListener(e, () => { clearTimeout(pressTimer); pressStart = null; }, { passive: true }));
+$('text').addEventListener('contextmenu', ev => {    // 电脑上：右键也可以
+  const s = ev.target.closest('.sent');
+  if (s && !document.body.classList.contains('align')) { ev.preventDefault(); if (!pressFired) playSentence(+s.dataset.s); }
+});
+
 $('text').addEventListener('click', ev => {
+  if (pressFired) { pressFired = false; return; }      // 长按后的 click 不弹注释
+  const sp = ev.target.closest('.sp');
+  if (sp && !document.body.classList.contains('align')) { playSentence(+sp.dataset.play); return; }
   if (document.body.classList.contains('align')) {
     const s = ev.target.closest('.sent');
     if (s) setTarget(+s.dataset.s);
@@ -556,6 +600,7 @@ const LAYERS = [
   { key: 'c', label: '固定搭配', sub: '绿色下划线', def: true },
   { key: 'o', label: '宾语', sub: '绿底 = 直接宾语，紫底 = 间接宾语', def: false },
   { key: 'follow', label: '自动跟随', sub: '已对齐的集，播放时文本自动滚到当前句', def: true },
+  { key: 'sp', label: '句首播放键', sub: '已对齐的句子开头显示 ▶，点一下从这句播放（长按任意词也可以）', def: true },
 ];
 const layerOn = k => store.get('layers', {})[k] ?? LAYERS.find(l => l.key === k).def;
 function toggleLayer(k) { const s = store.get('layers', {}); s[k] = !layerOn(k); store.set('layers', s); applyPrefs(); }
