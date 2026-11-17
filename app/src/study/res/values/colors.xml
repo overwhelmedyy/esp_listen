@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 注释版用青绿色图标，和原版（橙色）区分 -->
+    <color name="icon_bg">#0F766E</color>
+</resources>

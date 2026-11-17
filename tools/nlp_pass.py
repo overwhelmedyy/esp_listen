@@ -4,7 +4,7 @@ model = sys.argv[1] if len(sys.argv) > 1 else "es_core_news_md"
 out = sys.argv[2] if len(sys.argv) > 2 else "/home/claude/ann/nlp"
 os.makedirs(out, exist_ok=True)
 nlp = spacy.load(model)
-eps = json.load(open("/home/claude/esp_listen/web/transcripts.json", encoding="utf-8"))["episodes"]
+eps = json.load(open("/home/claude/esp_listen/web_shared/transcripts.json", encoding="utf-8"))["episodes"]
 for e in eps:
     f = f"{out}/{e['n']}.json"
     if os.path.exists(f): continue

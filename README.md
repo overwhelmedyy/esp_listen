@@ -1,5 +1,12 @@
 # 西语听力（esp_listen）
 
+同一套代码编译出两个 app，可以同时安装：
+
+| App | 安装包 | 内容 |
+|---|---|---|
+| 西语听力（橙色图标） | `esp_listen-v1.0.x.apk` | 音频 + 双语文本 |
+| 西语听力·注释（青绿色图标） | `esp_listen_study-v1.0.x.apk` | 另加点词注释、性数颜色、手动对齐 |
+
 播放 *Spanish for False Beginners* 播客音频，同时显示西英对照文本（手动滑动）。
 
 ## 使用
@@ -30,8 +37,8 @@
 
 ## 项目结构
 
-- `web/index.html` 界面（在电脑浏览器里也能直接打开测试：选择音频文件夹后用 `<audio>` 播放）
-- `web/transcripts.json` 全部剧集的双语文本，由 `tools/build_data.py` 从 PDF 生成
+- `web_plain/index.html` 原版界面；`web/index.html` 注释版界面（在电脑浏览器里也能直接打开测试：选择音频文件夹后用 `<audio>` 播放）
+- `web_shared/transcripts.json` 全部剧集的双语文本，由 `tools/build_data.py` 从 PDF 生成
 - `web/ann/<n>.json`、`web/lex.json` 注释数据：`tools/nlp_pass.py`（spaCy）→ `tools/build_ann.py`
 - `web/align.json` 内置的对齐时间（可选）
 - `app/` 安卓原生壳：WebView + MediaPlayer 前台服务 + 系统文件夹选择

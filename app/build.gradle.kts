@@ -40,9 +40,24 @@ android {
         }
     }
 
-    // 界面和文本数据都在仓库根目录的 web/ 里，直接作为 assets 打包，
-    // 同一份网页也能在电脑浏览器里打开测试。
-    sourceSets["main"].assets.srcDirs("../web")
+    // 两个版本，包名不同，可以同时安装：
+    //   plain：西语听力（只有音频 + 双语文本），界面在 web_plain/
+    //   study：西语听力·注释（点词注释、性数颜色、手动对齐），界面在 web/
+    // 两者共用 web_shared/transcripts.json
+    flavorDimensions += "edition"
+    productFlavors {
+        create("plain") {
+            dimension = "edition"
+            resValue("string", "app_name", "西语听力")
+        }
+        create("study") {
+            dimension = "edition"
+            applicationIdSuffix = ".study"
+            resValue("string", "app_name", "西语听力·注释")
+        }
+    }
+    sourceSets["plain"].assets.srcDirs("../web_plain", "../web_shared")
+    sourceSets["study"].assets.srcDirs("../web", "../web_shared")
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

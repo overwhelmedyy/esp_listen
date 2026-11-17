@@ -476,7 +476,7 @@ def match_phrases(paras, notes):
 
 # ---------------------------------------------------------------- main
 def main():
-    eps = json.load(open(os.path.join(WEB, "transcripts.json"), encoding="utf-8"))["episodes"]
+    eps = json.load(open(os.path.join(WEB, "..", "web_shared", "transcripts.json"), encoding="utf-8"))["episodes"]
     os.makedirs(os.path.join(WEB, "ann"), exist_ok=True)
     stats = collections.Counter()
     for e in eps:

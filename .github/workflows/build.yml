@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Check transcripts.json
-        run: python3 -c "import json;d=json.load(open('web/transcripts.json',encoding='utf-8'));e=d['episodes'];print(len(e),'episodes OK')"
+        run: python3 -c "import json;d=json.load(open('web_shared/transcripts.json',encoding='utf-8'));e=d['episodes'];print(len(e),'episodes OK')"
 
       - uses: actions/setup-java@v5
         with:
@@ -40,24 +40,30 @@ jobs:
             exit 1
           fi
 
-      - name: Verify APK
+      - name: Verify APKs
         run: |
-          APK=app/build/outputs/apk/release/app-release.apk
-          [ -f "$APK" ] || { echo "::error::APK not found"; exit 1; }
-          python3 - "$APK" <<'PY' || exit 1
-          import sys, zipfile
-          names = set(zipfile.ZipFile(sys.argv[1]).namelist())
-          missing = [n for n in ["assets/index.html", "assets/transcripts.json", "assets/lex.json", "assets/ann/1.json", "assets/align.json"] if n not in names]
-          if missing:
-              print(f"::error title=APK contents::missing {missing}")
-              sys.exit(1)
-          print("::notice title=APK contents::web assets present (%d entries)" % len(names))
+          python3 - <<'PY' || exit 1
+          import sys, zipfile, os
+          need = {
+              "plain": ["assets/index.html", "assets/transcripts.json"],
+              "study": ["assets/index.html", "assets/transcripts.json", "assets/lex.json", "assets/ann/1.json", "assets/align.json"],
+          }
+          for fl, files in need.items():
+              apk = f"app/build/outputs/apk/{fl}/release/app-{fl}-release.apk"
+              if not os.path.exists(apk):
+                  print(f"::error::{apk} not found"); sys.exit(1)
+              names = set(zipfile.ZipFile(apk).namelist())
+              missing = [n for n in files if n not in names]
+              if missing:
+                  print(f"::error title=APK contents::{fl} missing {missing}"); sys.exit(1)
+              print(f"::notice title={fl}::OK ({len(names)} entries)")
           PY
 
-      - name: Rename APK
+      - name: Rename APKs
         run: |
           mkdir -p out
-          cp app/build/outputs/apk/release/app-release.apk "out/esp_listen-v1.0.${{ github.run_number }}.apk"
+          cp app/build/outputs/apk/plain/release/app-plain-release.apk "out/esp_listen-v1.0.${{ github.run_number }}.apk"
+          cp app/build/outputs/apk/study/release/app-study-release.apk "out/esp_listen_study-v1.0.${{ github.run_number }}.apk"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -72,6 +78,8 @@ jobs:
           name: 西语听力 v1.0.${{ github.run_number }}
           body: |
             自动编译自 ${{ github.sha }}。
-            下载下面的 .apk 文件，在手机上安装即可（新版本可以直接覆盖安装，收听进度会保留）。
+            - esp_listen-….apk：西语听力（原版，只有音频 + 双语文本）
+            - esp_listen_study-….apk：西语听力·注释（点词注释、性数颜色、手动对齐）
+            两个可以同时安装；新版本直接覆盖安装，收听进度会保留。
           files: out/*.apk
           make_latest: true
