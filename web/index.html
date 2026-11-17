@@ -176,7 +176,7 @@
     <div id="alignInfo"></div>
     <div id="alignRow">
       <button id="undoBtn">撤销</button>
-      <button id="markBtn">标记本句开始</button>
+      <button id="markBtn">本句结束 ▸ 下一句</button>
       <button id="nudgeBack">−0.2s</button>
       <button id="nudgeFwd">+0.2s</button>
     </div>
@@ -641,9 +641,11 @@ $('alignBtn').onclick = () => {
   $('alignBtn').classList.toggle('on', on);
   if (on) {
     const al = getAlign(current.n);
-    const first = sentences.findIndex((_, i) => al[i] == null);
-    setTarget(first < 0 ? 0 : first);
-    toast('对齐模式：听到高亮句子开始时，按「标记本句开始」', 2600);
+    // 目标 = 正在听的句子：第一个「下一句还没有开始时间」的句子
+    let first = sentences.findIndex((_, i) => i + 1 < sentences.length && al[i + 1] == null);
+    if (first < 0) first = 0;
+    setTarget(first);
+    toast('对齐模式：高亮的句子说完时，按「本句结束 ▸ 下一句」', 2800);
   } else {
     sentences.forEach(s => s.el && s.el.classList.remove('target'));
   }
@@ -659,22 +661,27 @@ function setTarget(i) {
   updateAlignUI();
 }
 
+// 在高亮句说完时按：当前时间 = 下一句的开始时间，然后高亮移到下一句
 $('markBtn').onclick = () => {
   const s = player.state(); if (!s || !s.dur) { toast('先开始播放音频'); return; }
+  if (alignTarget >= sentences.length - 1) { toast('已经是最后一句了'); return; }
   const al = getAlign(current.n);
+  while (al.length < sentences.length) al.push(null);
+  const next = alignTarget + 1;
   const t = Math.max(0, s.pos - (s.playing ? REACTION_MS : 0));
-  undoStack.push({ i: alignTarget, prev: al[alignTarget] });
-  al[alignTarget] = t;
-  // 保证后面已标注的句子时间不早于这一句（重新标注时清掉矛盾的值）
-  for (let k = alignTarget + 1; k < al.length; k++) if (al[k] != null && al[k] < t) al[k] = null;
-  for (let k = 0; k < alignTarget; k++) if (al[k] != null && al[k] > t) al[k] = null;
+  undoStack.push({ i: next, prev: al[next], prev0: al[0], from: alignTarget });
+  if (al[0] == null) al[0] = 0;                 // 第一句默认从 0 秒开始
+  al[next] = t;
+  // 重新标注时清掉前后矛盾的时间
+  for (let k = next + 1; k < al.length; k++) if (al[k] != null && al[k] < t) al[k] = null;
+  for (let k = 1; k < next; k++) if (al[k] != null && al[k] > t) al[k] = null;
   setAlign(current.n, al);
-  if (alignTarget < sentences.length - 1) setTarget(alignTarget + 1); else { updateAlignUI(); toast('最后一句已标记'); }
+  setTarget(next);
 };
 $('undoBtn').onclick = () => {
   const u = undoStack.pop(); if (!u) { toast('没有可以撤销的'); return; }
-  const al = getAlign(current.n); al[u.i] = u.prev; setAlign(current.n, al);
-  setTarget(u.i);
+  const al = getAlign(current.n); al[u.i] = u.prev; al[0] = u.prev0; setAlign(current.n, al);
+  setTarget(u.from);
 };
 function nudge(ms) {
   const al = getAlign(current.n);
@@ -696,7 +703,7 @@ function updateAlignUI() {
   sentences.forEach((s, i) => { const ok = al[i] != null; if (ok) done++; if (s.el) s.el.classList.toggle('done', ok); });
   const tgt = al[alignTarget];
   $('alignInfo').textContent = sentences.length
-    ? `已标记 ${done} / ${sentences.length} 句 · 当前第 ${alignTarget + 1} 句${tgt != null ? '（' + fmt1(tgt) + '）' : ''} · 点任意句子可以选中它重新标记`
+    ? `已对齐 ${done} / ${sentences.length} 句 · 正在听第 ${alignTarget + 1} 句${tgt != null ? '（开始于 ' + fmt1(tgt) + '）' : ''} · 说完时按绿色按钮；点任意句子可从那里接着标`
     : '';
 }
 
