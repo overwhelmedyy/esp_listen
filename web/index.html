@@ -96,25 +96,25 @@
   body.align .sent.target { background: var(--target); }
 
   /* ---------- 底部控制面板 ---------- */
-  #panel { flex: none; background: var(--panel); border-top: 1px solid var(--line); padding: 6px 14px 10px; }
-  #seekRow { display: flex; align-items: center; gap: 10px; font: 12px ui-monospace, monospace; color: var(--muted); }
-  #seek { flex: 1; accent-color: var(--accent); height: 28px; }
-  #ctrlRow { display: flex; justify-content: space-between; align-items: center; margin: 4px 0 8px; }
-  .skip { width: 60px; height: 60px; border-radius: 30px; background: var(--card); border: 1px solid var(--line);
-    display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
-  .skip b { font-size: 19px; }
-  .skip small { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  /* 控制区随字号缩放：默认字号 19px 时约 15px */
+  #panel { flex: none; background: var(--panel); border-top: 1px solid var(--line); padding: 4px 12px 8px;
+           font-size: calc(var(--fs-size, 19px) * .78); }
+  #seekRow { display: flex; align-items: center; gap: 8px; font: .78em ui-monospace, monospace; color: var(--muted); }
+  #seek { flex: 1; accent-color: var(--accent); height: 24px; }
+  #ctrlRow { display: flex; justify-content: space-between; align-items: center; margin: 2px 4px 6px; }
+  .skip { width: 3em; height: 3em; border-radius: 1.5em; background: var(--card); border: 1px solid var(--line);
+    display: grid; place-items: center; line-height: 1; font-size: 1em; font-weight: 700; }
   .skip:active, #play:active, #markBtn:active { transform: scale(.94); }
-  #play { width: 76px; height: 76px; border-radius: 38px; background: var(--accent); color: #fff; font-size: 30px;
-    box-shadow: 0 4px 14px rgba(194,65,12,.35); display: grid; place-items: center; }
-  #speedRow { display: flex; gap: 6px; }
-  #speedRow button { flex: 1; height: 40px; border-radius: 10px; border: 1px solid var(--line); font-size: 15px; font-weight: 600; }
+  #play { font-size: 1.35em; width: 2.6em; height: 2.6em; border-radius: 1.3em; background: var(--accent); color: #fff;
+    box-shadow: 0 3px 10px rgba(194,65,12,.3); display: grid; place-items: center; }
+  #speedRow { display: flex; gap: 5px; }
+  #speedRow button { flex: 1; height: 2.1em; border-radius: 8px; border: 1px solid var(--line); font-size: .88em; font-weight: 600; }
   #speedRow button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
-  #alignRow { display: none; gap: 6px; margin-bottom: 8px; align-items: stretch; }
+  #alignRow { display: none; gap: 5px; margin-bottom: 6px; align-items: stretch; }
   body.align #alignRow { display: flex; }
-  #alignRow button { height: 52px; border-radius: 12px; border: 1px solid var(--line); font-size: 14px; font-weight: 600; padding: 0 10px; }
-  #markBtn { flex: 1; background: #16a34a !important; border-color: #16a34a !important; color: #fff; font-size: 17px !important; }
-  #alignInfo { font-size: 12px; color: var(--muted); text-align: center; margin: -2px 0 6px; display: none; }
+  #alignRow button { height: 2.4em; border-radius: 9px; border: 1px solid var(--line); font-size: .88em; font-weight: 600; padding: 0 .7em; }
+  #markBtn { flex: 1; background: #16a34a !important; border-color: #16a34a !important; color: #fff; font-size: 1em !important; }
+  #alignInfo { font-size: .75em; color: var(--muted); text-align: center; margin: 0 0 4px; display: none; }
   body.align #alignInfo { display: block; }
 
   /* ---------- 弹出卡片 ---------- */
@@ -184,7 +184,7 @@
     <div id="alignInfo"></div>
     <div id="alignRow">
       <button id="undoBtn">撤销</button>
-      <button id="markBtn">本句结束 ▸ 下一句</button>
+      <button id="markBtn">标记 ▸</button>
       <button id="nudgeBack">−0.2s</button>
       <button id="nudgeFwd">+0.2s</button>
     </div>
@@ -194,11 +194,11 @@
       <span id="dur">0:00</span>
     </div>
     <div id="ctrlRow">
-      <button class="skip" data-skip="-10"><b>«10</b><small>秒</small></button>
-      <button class="skip" data-skip="-5"><b>‹5</b><small>秒</small></button>
+      <button class="skip" data-skip="-10">«10'</button>
+      <button class="skip" data-skip="-5">‹5'</button>
       <button id="play" aria-label="播放/暂停">▶</button>
-      <button class="skip" data-skip="5"><b>5›</b><small>秒</small></button>
-      <button class="skip" data-skip="10"><b>10»</b><small>秒</small></button>
+      <button class="skip" data-skip="5">5'›</button>
+      <button class="skip" data-skip="10">10'»</button>
     </div>
     <div id="speedRow"></div>
   </div>
@@ -560,10 +560,11 @@ function sentenceOf(pi, ti) {
   return r;
 }
 
-function openSheet(html) {
+function openSheet(html, keepScroll) {
+  const y = $('sheet').scrollTop;
   $('sheet').innerHTML = html;
   $('sheet').classList.remove('hidden'); $('sheetBg').classList.remove('hidden');
-  $('sheet').scrollTop = 0;
+  $('sheet').scrollTop = keepScroll ? y : 0;
 }
 function closeSheet() {
   $('sheet').classList.add('hidden'); $('sheetBg').classList.add('hidden');
@@ -579,14 +580,16 @@ $('sheet').addEventListener('click', ev => {
     const al = getAlign(current.n);
     player.seekTo(al[+b.dataset.s]); player.play(); closeSheet();
   }
-  if (act === 'toggle') { toggleLayer(b.dataset.key); renderSettings(); }
+  if (act === 'toggle') { toggleLayer(b.dataset.key); renderSettings(true); }
+  if (act === 'help') renderHelp();
+  if (act === 'back') renderSettings();
   if (act === 'export') exportData();
   if (act === 'import') importData();
   if (act === 'clearAlign') clearAlign();
   if (act === 'copy') { const ta = $('sheet').querySelector('textarea'); ta.select(); try { navigator.clipboard.writeText(ta.value); toast('已复制'); } catch {} }
   if (act === 'fontUp' || act === 'fontDown') {
     store.set('fontSize', Math.max(14, Math.min(30, store.get('fontSize', 19) + (act === 'fontUp' ? 1 : -1))));
-    applyPrefs(); renderSettings();
+    applyPrefs(); renderSettings(true);
   }
 });
 
@@ -605,7 +608,7 @@ const LAYERS = [
 const layerOn = k => store.get('layers', {})[k] ?? LAYERS.find(l => l.key === k).def;
 function toggleLayer(k) { const s = store.get('layers', {}); s[k] = !layerOn(k); store.set('layers', s); applyPrefs(); }
 
-function renderSettings() {
+function renderSettings(keepScroll) {
   let h = '<div class="grab"></div><h2 style="font-size:19px;margin-bottom:6px">显示设置</h2>';
   for (const l of LAYERS) {
     h += `<div class="row"><div>${l.label}${l.sub ? `<small>${l.sub}</small>` : ''}</div><button class="switch ${layerOn(l.key) ? 'on' : ''}" data-act="toggle" data-key="${l.key}"></button></div>`;
@@ -616,7 +619,43 @@ function renderSettings() {
     <span style="color:var(--mp)"><b>■</b> 阳性复数</span><span style="color:var(--fp)"><b>■</b> 阴性复数</span></div></div>`;
   h += `<div class="sec"><div class="lbl">对齐数据备份</div><div class="desc" style="font-size:13px;color:var(--muted)">导出所有已标注的时间（以及收听进度），换手机或重装前先备份；也可以把文件发给开发者打包进 app。</div>
     <div class="acts"><button data-act="export">导出</button><button data-act="import">导入</button>${current ? '<button data-act="clearAlign">清除本集对齐</button>' : ''}</div></div>`;
-  h += '<div class="acts"><button data-act="close">完成</button></div>';
+  h += '<div class="acts"><button data-act="help">使用帮助</button><button class="pri" data-act="close">完成</button></div>';
+  openSheet(h, keepScroll);
+}
+
+function renderHelp() {
+  const sec = (t, items) => `<div class="sec"><div class="lbl">${t}</div><div class="desc" style="font-size:14px">${items.map(x => '· ' + x).join('<br>')}</div></div>`;
+  let h = '<div class="grab"></div><h2 style="font-size:19px;margin-bottom:4px">使用帮助</h2>';
+  h += sec('播放', [
+    "«10' ‹5' 5'› 10'»：后退 / 前进 10 秒、5 秒；中间是播放 / 暂停",
+    '下面一排是倍速，点一下切换；进度条可以拖动',
+    '锁屏或切到别的 App 继续播放，通知栏和耳机线控可以控制',
+    '每集会记住播放进度和文本滚动位置',
+  ]);
+  h += sec('手动对齐', [
+    '右上角「对齐」打开对齐模式，高亮的是正在听的句子，第一句从 0 秒开始',
+    '这句说完时按「标记 ▸」，当前时间记为下一句的开始，高亮移到下一句（自动往前补 0.3 秒反应时间）',
+    '撤销：取消上一次标记；−0.2s / +0.2s：微调刚标的分句点并从那里重播',
+    '点任意句子：从那句接着标（最好选已经有开始时间的句子）',
+    '标好的集：播放时高亮当前句并自动跟随滚动；手动滑动文本后会暂停跟随几秒',
+  ]);
+  h += sec('从某句开始播放（已对齐的句子）', [
+    '点句首的 ▶',
+    '长按句子里任意一个词（电脑上用右键）',
+    '或者点词，在注释卡片里点 Play from this sentence',
+  ]);
+  h += sec('注释', [
+    '点任意单词：原形、词性和英文释义、动词变位、语法结构、固定搭配、宾语',
+    '橙色虚线下划线 = 语法结构；绿色下划线 = 固定搭配；绿底 / 紫底 = 直接 / 间接宾语（默认关闭）',
+    '词尾颜色表示性数：<span style="color:var(--ms)">阳性单数</span>、<span style="color:var(--fs)">阴性单数</span>、<span style="color:var(--mp)">阳性复数</span>、<span style="color:var(--fp)">阴性复数</span>',
+    '注释由程序自动生成，约九成准确；宾语指代是推测的',
+    '各类标注都可以在设置里单独开关',
+  ]);
+  h += sec('备份', [
+    '设置 → 导出：保存所有对齐时间和收听进度；换手机或重装前先导出',
+    '设置 → 导入：恢复备份',
+  ]);
+  h += '<div class="acts"><button data-act="back">返回设置</button><button class="pri" data-act="close">完成</button></div>';
   openSheet(h);
 }
 $('settingsBtn').onclick = renderSettings;
@@ -690,7 +729,6 @@ $('alignBtn').onclick = () => {
     let first = sentences.findIndex((_, i) => i + 1 < sentences.length && al[i + 1] == null);
     if (first < 0) first = 0;
     setTarget(first);
-    toast('对齐模式：高亮的句子说完时，按「本句结束 ▸ 下一句」', 2800);
   } else {
     sentences.forEach(s => s.el && s.el.classList.remove('target'));
   }
@@ -748,7 +786,7 @@ function updateAlignUI() {
   sentences.forEach((s, i) => { const ok = al[i] != null; if (ok) done++; if (s.el) s.el.classList.toggle('done', ok); });
   const tgt = al[alignTarget];
   $('alignInfo').textContent = sentences.length
-    ? `已对齐 ${done} / ${sentences.length} 句 · 正在听第 ${alignTarget + 1} 句${tgt != null ? '（开始于 ' + fmt1(tgt) + '）' : ''} · 说完时按绿色按钮；点任意句子可从那里接着标`
+    ? `已对齐 ${done} / ${sentences.length} 句 · 正在听第 ${alignTarget + 1} 句${tgt != null ? '（开始于 ' + fmt1(tgt) + '）' : ''}`
     : '';
 }
 
@@ -801,7 +839,7 @@ document.querySelectorAll('[data-skip]').forEach(b => {
   b.onclick = () => {
     const sec = +b.dataset.skip;
     player.seekBy(sec * 1000);
-    toast((sec > 0 ? '+' : '') + sec + ' 秒', 500);
+    toast((sec > 0 ? '+' : '') + sec + "'", 500);
     setTimeout(poll, 60);
   };
 });
