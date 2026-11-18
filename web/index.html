@@ -144,6 +144,15 @@
   .legend span b { font-weight: 700; }
   textarea { width: 100%; height: 120px; font: 12px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--fg); }
 
+  /* 变位表 */
+  .cj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 6px; }
+  .cj { border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; background: var(--card); }
+  .cj b { display: block; font-size: 12px; color: var(--accent); margin-bottom: 3px; }
+  .cj div { font-size: 14px; line-height: 1.55; display: flex; gap: 6px; }
+  .cj div i { font-style: normal; color: var(--muted); font-size: 11px; width: 52px; flex: none; padding-top: 2px; }
+  .cj div.hit { background: var(--target); border-radius: 4px; font-weight: 700; }
+  .cj-h { font-size: 13px; font-weight: 700; margin: 14px 0 0; color: var(--muted); letter-spacing: .03em; }
+  .sheet a { color: var(--accent); }
   #msg { position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%); background: rgba(0,0,0,.78); color: #fff;
     padding: 10px 18px; border-radius: 10px; font-size: 15px; pointer-events: none; opacity: 0; transition: opacity .2s; z-index: 30; max-width: 80vw; text-align: center; }
   #msg.show { opacity: 1; }
@@ -516,7 +525,9 @@ $('text').addEventListener('click', ev => {
   showWord(pi, ti, w);
 });
 
+let lastWord = null;
 function showWord(pi, ti, el) {
+  lastWord = { pi, ti, el };
   document.querySelectorAll('.w.sel').forEach(x => x.classList.remove('sel'));
   el.classList.add('sel');
   const [text, , info = {}] = ann.paras[pi].t[ti];
@@ -531,7 +542,9 @@ function showWord(pi, ti, el) {
   }
   if (info.v) {
     const [main, hint] = info.v.split('\n');
-    h += `<div class="sec"><div class="lbl">Verb form</div><div class="ttl">${esc(main)}</div>${hint ? `<div class="desc" style="color:var(--muted);font-size:14px">${esc(hint)}</div>` : ''}</div>`;
+    h += `<div class="sec"><div class="lbl">Verb form</div><div class="ttl">${esc(main)}</div>${hint ? `<div class="desc" style="color:var(--muted);font-size:14px">${esc(hint)}</div>` : ''}`;
+    if (lx && lx.p === 'verb') h += `<div class="acts" style="margin-top:8px"><button data-act="conj" data-verb="${esc(lx.w)}" data-form="${esc(text)}">Conjugation table: ${esc(lx.w)} →</button></div>`;
+    h += '</div>';
   }
   if (info.c) {
     const names = { ms: 'masculine · singular', fs: 'feminine · singular', mp: 'masculine · plural', fp: 'feminine · plural' };
@@ -581,6 +594,8 @@ $('sheet').addEventListener('click', ev => {
   }
   if (act === 'toggle') { toggleLayer(b.dataset.key); renderSettings(true); }
   if (act === 'help') renderHelp();
+  if (act === 'conj') renderConj(b.dataset.verb, b.dataset.form);
+  if (act === 'backWord' && lastWord) showWord(lastWord.pi, lastWord.ti, lastWord.el);
   if (act === 'back') renderSettings();
   if (act === 'export') exportData();
   if (act === 'import') importData();
@@ -624,6 +639,54 @@ function renderSettings(keepScroll) {
   openSheet(h, keepScroll);
 }
 
+/* ======================================================================
+ * 动词变位表（web/conj.json，由 verbecc 生成；复合时态用 haber 拼出）
+ * ==================================================================== */
+let CONJ = null;
+const PERS_L = ['yo', 'tú', 'él / ella / Ud.', 'nosotros', 'vosotros', 'ellos / Uds.'];
+const IMP_L = ['tú', 'usted', 'nosotros', 'vosotros', 'ustedes'];
+async function renderConj(verb, form) {
+  if (!CONJ) { try { CONJ = await loadJSON('conj.json'); } catch { toast('变位表加载失败'); return; } }
+  const base = /(ar|er|ir|ír)se$/.test(verb) ? verb.slice(0, -2) : verb;
+  const v = CONJ[base];
+  const back = lastWord ? '<button data-act="backWord">← Back</button>' : '';
+  if (!v) {
+    openSheet(`<div class="grab"></div><h2>${esc(verb)}</h2><div class="desc">No conjugation table for this word.</div><div class="acts">${back}<button data-act="close">Close</button></div>`);
+    return;
+  }
+  const hb = CONJ.haber.f, f = v.f;
+  const target = (form || '').toLowerCase();
+  const card = (title, labels, forms, prefix) => {
+    let h = `<div class="cj"><b>${title}</b>`;
+    forms.forEach((x, i) => {
+      const full = (prefix ? prefix[i] + ' ' : '') + x;
+      const hit = x && target && (x.toLowerCase().split(' / ').includes(target) || full.toLowerCase() === target);
+      h += `<div class="${hit ? 'hit' : ''}"><i>${labels[i]}</i><span>${esc(full || '—')}</span></div>`;
+    });
+    return h + '</div>';
+  };
+  const comp = (title, aux) => card(title, PERS_L, aux.map(a => a + ' ' + v.pp));
+  let h = `<div class="grab"></div><h2>${esc(base)}${verb !== base ? `<span class="lemma">(${esc(verb)})</span>` : ''}</h2>`;
+  const nf = x => `<b style="color:var(--fg)${x && x.toLowerCase() === target ? ';background:var(--target);border-radius:4px;padding:0 3px' : ''}">${esc(x)}</b>`;
+  h += `<div class="desc" style="font-size:14px;color:var(--muted)">gerund ${nf(v.g)} · past participle ${nf(v.pp)}${v.tpl && v.tpl !== base ? ` · conjugates like <b style="color:var(--fg)">${esc(v.tpl)}</b>` : ''}</div>`;
+  if (v.pred) h += `<div class="desc" style="font-size:13px;color:#b45309;margin-top:4px">This verb is not in the reference list; forms were generated by pattern and may contain mistakes.</div>`;
+  h += '<div class="cj-h">INDICATIVE</div><div class="cj-grid">' +
+    card('Present', PERS_L, f.ip) + card('Preterite', PERS_L, f.is) + card('Imperfect', PERS_L, f.ii) +
+    card('Future', PERS_L, f.if) + card('Conditional', PERS_L, f.cp) + '</div>';
+  h += '<div class="cj-h">SUBJUNCTIVE</div><div class="cj-grid">' +
+    card('Present', PERS_L, f.sp) + card('Imperfect (-ra)', PERS_L, f.si) + card('Imperfect (-se)', PERS_L, f.si2) + '</div>';
+  h += '<div class="cj-h">IMPERATIVE</div><div class="cj-grid">' +
+    card('Affirmative', IMP_L, f.ia) + card('Negative', IMP_L, f.in) + '</div>';
+  h += '<div class="cj-h">COMPOUND TENSES (haber + participle)</div><div class="cj-grid">' +
+    comp('Present perfect', hb.ip) + comp('Pluperfect', hb.ii) + comp('Future perfect', hb.if) +
+    comp('Conditional perfect', hb.cp) + comp('Present perfect subj.', hb.sp) + comp('Pluperfect subj.', hb.si) + '</div>';
+  h += `<div class="desc" style="font-size:12px;color:var(--muted);margin-top:12px">More: <a href="https://www.spanishdict.com/conjugate/${encodeURIComponent(base)}">SpanishDict ↗</a> · <a href="https://en.wiktionary.org/wiki/${encodeURIComponent(base)}#Spanish">Wiktionary ↗</a><br>Tables generated with verbecc (LGPL-3.0).</div>`;
+  h += `<div class="acts">${back}<button class="pri" data-act="close">Close</button></div>`;
+  openSheet(h);
+  const hit = $('sheet').querySelector('.hit');
+  if (hit) setTimeout(() => hit.scrollIntoView({ block: 'center' }), 30);
+}
+
 function renderHelp() {
   const sec = (t, items) => `<div class="sec"><div class="lbl">${t}</div><div class="desc" style="font-size:14px">${items.map(x => '· ' + x).join('<br>')}</div></div>`;
   let h = '<div class="grab"></div><h2 style="font-size:19px;margin-bottom:4px">使用帮助</h2>';
@@ -648,6 +711,7 @@ function renderHelp() {
   ]);
   h += sec('注释', [
     '点任意单词：原形、词性和英文释义、动词变位、语法结构、固定搭配、宾语',
+    '点动词后按 Conjugation table：查看完整变位表，你点的那个形式会高亮；表下方有 SpanishDict / Wiktionary 链接',
     '橙色虚线下划线 = 语法结构；绿色下划线 = 固定搭配；绿底 / 紫底 = 直接 / 间接宾语（默认关闭）',
     '词尾颜色表示性数：<span style="color:var(--ms)">阳性单数</span>、<span style="color:var(--fs)">阴性单数</span>、<span style="color:var(--mp)">阳性复数</span>、<span style="color:var(--fp)">阴性复数</span>',
     '注释由程序自动生成，约九成准确；宾语指代是推测的',

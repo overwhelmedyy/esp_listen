@@ -29,6 +29,7 @@
 ## 注释（点按单词）
 
 - 词义（英文，来自 Wiktionary）、动词变位、语法结构（橙色虚线）、固定搭配（绿色下划线）、宾语（可在设置里打开）、性数一致（词尾 4 色）
+- 点动词 → Conjugation table：完整变位表（`web/conj.json`，由 `tools/build_conj.py` 用 [verbecc](https://github.com/bretttolbert/verbecc)（LGPL-3.0）生成，复合时态用 haber 拼出）
 - 由 spaCy 自动分析 + 规则生成，准确率约九成；`tools/phrase_blacklist.txt` 里是排除掉的误匹配搭配
 
 ## 手动对齐
