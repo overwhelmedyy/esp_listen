@@ -567,7 +567,6 @@ function showWord(pi, ti, el) {
   const si = sentenceOf(pi, ti);
   const al = getAlign(current.n);
   h += '<div class="acts">';
-  if (si >= 0 && al[si] != null) h += `<button class="pri" data-act="playSent" data-s="${si}">▶ Play from this sentence</button>`;
   if (AI && AI.s[si]) h += `<button data-act="aiSent" data-s="${si}">Whole sentence notes</button>`;
   h += `</div>`;
   openSheet(h);
