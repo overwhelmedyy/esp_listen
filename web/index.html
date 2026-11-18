@@ -131,6 +131,7 @@
   .sheet .en2 { font-size: 14px; color: var(--muted); line-height: 1.45; margin-top: 2px; }
   .sheet .desc { font-size: 15px; line-height: 1.55; white-space: pre-line; }
   .sheet .ttl { font-weight: 600; font-size: 15px; }
+  .sheet .acts:empty { display: none; }
   .sheet .acts { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
   .sheet .acts button { flex: 1; min-width: 120px; height: 44px; border-radius: 10px; border: 1px solid var(--line); font-size: 14px; font-weight: 600; }
   .sheet .acts button.pri { background: var(--accent); border-color: var(--accent); color: #fff; }
@@ -568,7 +569,7 @@ function showWord(pi, ti, el) {
   h += '<div class="acts">';
   if (si >= 0 && al[si] != null) h += `<button class="pri" data-act="playSent" data-s="${si}">▶ Play from this sentence</button>`;
   if (AI && AI.s[si]) h += `<button data-act="aiSent" data-s="${si}">Whole sentence notes</button>`;
-  h += `<button data-act="close">Close</button></div>`;
+  h += `</div>`;
   openSheet(h);
 }
 
@@ -616,7 +617,7 @@ function renderAiSentence(si) {
   for (const [ph, base, mean] of n.x || []) h += aiSec('Expression', 'var(--c-line)', ph, mean);
   h += '<div class="acts">';
   if (lastWord) h += `<button data-act="backWord">← Back</button>`;
-  h += `<button class="pri" data-act="close">Close</button></div>`;
+  h += `</div>`;
   openSheet(h);
 }
 
@@ -706,7 +707,7 @@ async function renderConj(verb, form) {
   const v = CONJ[base];
   const back = lastWord ? '<button data-act="backWord">← Back</button>' : '';
   if (!v) {
-    openSheet(`<div class="grab"></div><h2>${esc(verb)}</h2><div class="desc">No conjugation table for this word.</div><div class="acts">${back}<button data-act="close">Close</button></div>`);
+    openSheet(`<div class="grab"></div><h2>${esc(verb)}</h2><div class="desc">No conjugation table for this word.</div><div class="acts">${back}</div>`);
     return;
   }
   const hb = CONJ.haber.f, f = v.f;
@@ -736,7 +737,7 @@ async function renderConj(verb, form) {
     comp('Present perfect', hb.ip) + comp('Pluperfect', hb.ii) + comp('Future perfect', hb.if) +
     comp('Conditional perfect', hb.cp) + comp('Present perfect subj.', hb.sp) + comp('Pluperfect subj.', hb.si) + '</div>';
   h += `<div class="desc" style="font-size:12px;color:var(--muted);margin-top:12px">More: <a href="https://www.spanishdict.com/conjugate/${encodeURIComponent(base)}">SpanishDict ↗</a> · <a href="https://en.wiktionary.org/wiki/${encodeURIComponent(base)}#Spanish">Wiktionary ↗</a><br>Tables generated with verbecc (LGPL-3.0).</div>`;
-  h += `<div class="acts">${back}<button class="pri" data-act="close">Close</button></div>`;
+  h += `<div class="acts">${back}</div>`;
   openSheet(h);
   const hit = $('sheet').querySelector('.hit');
   if (hit) setTimeout(() => hit.scrollIntoView({ block: 'center' }), 30);
