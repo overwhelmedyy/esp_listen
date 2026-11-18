@@ -17,7 +17,8 @@ Annotations per token:
 """
 import json, re, os, sys, collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lex import fix_lemma, gloss, POSMAP, W, BAD_Q, BAD_G
+from lex import fix_lemma, gloss, POSMAP, W, BAD_Q, BAD_G, resolve, FORMS
+from verbtag import correct as correct_verb
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 NLP = sys.argv[1] if len(sys.argv) > 1 else "/home/claude/ann/nlp"
@@ -43,7 +44,22 @@ TENSE_HINT = {
     ("Imp", None): "Commands, requests, advice; object pronouns attach to the end (dímelo).",
 }
 
-def verb_desc(m):
+TAGNAME = {("Ind", "Pres"): "present", ("Ind", "Past"): "preterite", ("Ind", "Imp"): "imperfect", ("Ind", "Fut"): "future",
+           ("Cnd", None): "conditional", ("Sub", "Pres"): "present subjunctive", ("Sub", "Imp"): "past subjunctive", ("Imp", None): "imperative"}
+def same_form_note(tags):
+    """同一个词形还可以是别的时态（hablamos = 现在时 / 过去时）：提醒一句。人称不同的不提（hable = yo / él）。"""
+    first = tags[0]
+    if len(first) < 4: return ""
+    others = []
+    for t in tags[1:]:
+        if len(t) < 4 or t[:2] == first[:2]: continue
+        pair = {first[0], t[0]}
+        if pair == {"Ind", "Imp"} or pair == {"Sub", "Imp"}: continue      # cuenta (él / ¡tú!)、hable (que él / ¡usted!) 太常见，不提
+        name = TAGNAME.get(t[:2])
+        if name and name not in others: others.append(name)
+    return ("Same spelling is also the " + " / ".join(others) + "; context decides.") if others else ""
+
+def verb_desc(m, tags=None):
     vf = m.get("VerbForm")
     if vf == "Inf": return "Infinitive"
     if vf == "Ger": return "Gerund (-ando / -iendo): \"…ing\""
@@ -61,19 +77,36 @@ def verb_desc(m):
     if p: parts.append(p)
     if mood == "Sub" and tense == "Past": tense = "Imp"
     hint = TENSE_HINT.get((mood, tense)) or TENSE_HINT.get((mood, None))
+    extra = same_form_note(tags) if tags else ""
+    if extra: hint = (hint + " " if hint else "") + extra
     return " · ".join(parts) + ("\n" + hint if hint else "")
 
-def gn_class(tok):
-    text, ws, lemma, pos, m = tok[0], tok[1], tok[2], tok[3], morph(tok[4])
+NOUN_G = {}
+def noun_gender(lemma):
+    if lemma not in NOUN_G:
+        gs = {x.get("g") for x in W.get(lemma, []) if x["pos"] == "n" and x.get("g")}
+        NOUN_G[lemma] = {"m": "Masc", "f": "Fem", "m-p": "Masc", "f-p": "Fem"}.get(gs.pop()) if len(gs) == 1 else None
+    return NOUN_G[lemma]
+
+def gn_class(tok, lemma=None):
+    text, ws, _, pos, m = tok[0], tok[1], tok[2], tok[3], morph(tok[4])
     if pos not in ("NOUN", "ADJ", "DET", "PRON", "VERB"): return None
     if pos == "VERB" and m.get("VerbForm") != "Part": return None
     if pos == "PRON" and m.get("PronType") == "Prs" and m.get("Person") in ("1", "2"): return None
     g, n = m.get("Gender"), m.get("Number")
+    if pos == "NOUN" and lemma:
+        dg = noun_gender(lemma)               # 名词的性以词典为准（spaCy 偶尔判错）
+        if dg: g = dg
     if g not in ("Masc", "Fem") or n not in ("Sing", "Plur"): return None
     return ("m" if g == "Masc" else "f") + ("s" if n == "Sing" else "p")
 
 # ---------------------------------------------------------------- shared word list
 LEX, LEXID = [], {}
+OVR = {}
+for line in open(os.path.join(HERE, "gloss_override.tsv"), encoding="utf-8"):
+    if line.startswith("#") or not line.strip(): continue
+    w, p, g = line.rstrip("\n").split("\t")
+    OVR[(w, p)] = g
 POS_EN = {"NOUN": "noun", "VERB": "verb", "AUX": "verb", "ADJ": "adjective", "ADV": "adverb", "ADP": "preposition",
           "CCONJ": "conjunction", "SCONJ": "conjunction", "PRON": "pronoun", "DET": "determiner",
           "INTJ": "interjection", "NUM": "number"}
@@ -92,13 +125,16 @@ def join_glosses(gl, limit=150):
         out = (out + "; " + p) if out else p
     return out
 
-def lex_id(lemma, pos):
+def lex_id(lemma, pos, part=False):
     if pos == "AUX": pos = "VERB"
-    key = (lemma, pos)
+    key = (lemma, "PART" if part else pos)
     if key in LEXID: return LEXID[key]
-    en = gloss(lemma, pos, n=4)
+    en = gloss(lemma, "VERB" if part else pos, n=4)
+    ov = OVR.get((lemma, "verb" if part else POS_EN.get(pos, "")))
+    if ov: en = [ov]
     if not en: return None
-    e = {"w": lemma, "p": POS_EN.get(pos, ""), "en": join_glosses(en)}
+    if part: en = [g if not g.startswith("to ") else g for g in en]
+    e = {"w": lemma, "p": "past participle (as adjective)" if part else POS_EN.get(pos, ""), "en": ov if ov else join_glosses(en)}
     if pos == "NOUN":
         for x in W.get(lemma, []):
             if x["pos"] == "n" and x.get("g") in GENDER_EN:
@@ -164,6 +200,20 @@ SUBJ_TRIGGERS = [
     (r"\bque\b", "que-clause (wish, emotion, doubt, command…)"),
 ]
 
+STATS = collections.Counter()
+ENG_STOP = set("the of and to a in is it you that this for on with as are be at by have from or an not but what all were we when your can said there use each which she do how their if will up other about out many then them these so some her would make like him into time has look two more write go see number no way could people my than first been call who its now find long down day did get come made may part episode podcast welcome hello".split())
+def english_mask(toks, starts):
+    """英文句子（节目开头的英文介绍等）不加西语注释"""
+    mask = [False] * len(toks)
+    bounds = starts + [len(toks)]
+    for a, b in zip(bounds, bounds[1:]):
+        words = [t[0].lower() for t in toks[a:b] if re.fullmatch(r"[A-Za-z']+", t[0])]
+        if len(words) < 3: continue
+        eng = sum(1 for w in words if w in ENG_STOP or (w not in FORMS and not w.istitle()))
+        if eng / len(words) >= 0.6:
+            for k in range(a, b): mask[k] = True
+    return mask
+
 class Notes:
     def __init__(self): self.items = []; self.index = {}
     def add(self, kind, title, desc, toks):
@@ -187,10 +237,39 @@ def build_episode(paras):
     for pi, toks in enumerate(paras):
         N = len(toks)
         M = [morph(t[4]) for t in toks]
-        L = [fix_lemma(t[0], t[2], t[3]) if re.search(r"\w", t[0]) else t[0] for t in toks]
         low = [t[0].lower() for t in toks]
         info = [dict() for _ in toks]
         sent_starts = [i for i, t in enumerate(toks) if t[7] or i == 0]
+        english = english_mask(toks, sent_starts)
+        L, P, PART, TAGS = [], [], [], [None] * N
+        for i, t in enumerate(toks):
+            if not re.search(r"\w", t[0]) or english[i]:
+                L.append(t[0] if not english[i] else low[i]); P.append(t[3] if not english[i] else "X"); PART.append(False); continue
+            lem, pos, part = resolve(t[0], t[2], t[3])
+            if low[i] == "sí" and not (i > 0 and low[i - 1] in ("para", "en", "por", "de", "a", "con", "entre", "sobre", "ante", "contra", "hacia", "desde", "sin")):
+                lem, pos, part = "sí", "INTJ", False          # “sí” = yes（介词后面才是反身代词 sí）
+            if low[i] == "vale" and (i + 1 >= N or not re.search(r"\w", toks[i + 1][0])) and (i == 0 or not re.search(r"\w", toks[i - 1][0]) or low[i - 1] in ("y", "pues", "bueno", "ah", "vale")):
+                lem, pos, part = "vale", "INTJ", False        # “¡Vale!” = OK
+            elif low[i] == "vale" and i + 1 < N and low[i + 1] == "," and i > 0 and not re.search(r"\w", toks[i - 1][0]):
+                lem, pos, part = "vale", "INTJ", False
+            if lem is None:
+                lem = fix_lemma(t[0], t[2], t[3])
+                if low[i] not in FORMS and lem not in W and t[3] not in ("PROPN", "NUM"):
+                    L.append(low[i]); P.append("X"); PART.append(False); continue      # 外语词（英文等），不注释
+            L.append(lem); P.append(pos); PART.append(part)
+            if pos in ("VERB", "AUX") and not part:
+                tags, status = correct_verb(t[0], lem, M[i] if t[3] in ("VERB", "AUX") else {})
+                tg = tags[0]
+                if tg and tg[0]:
+                    m = dict(M[i]); STATS["verb_" + status] += 1
+                    for k in ("Mood", "Tense", "Person", "Number", "VerbForm"): m.pop(k, None)
+                    if len(tg) == 1: m["VerbForm"] = tg[0]
+                    else:
+                        m.update(VerbForm="Fin", Mood=tg[0])
+                        if tg[1]: m["Tense"] = tg[1]
+                        if tg[2]: m["Person"] = tg[2]
+                        if tg[3]: m["Number"] = tg[3]
+                    M[i] = m; TAGS[i] = tags
         children = collections.defaultdict(list)
         for i, t in enumerate(toks):
             if t[6] != i: children[t[6]].append(i)
@@ -206,15 +285,17 @@ def build_episode(paras):
 
         # ---- meaning, verb form, gender/number
         for i, t in enumerate(toks):
-            text, pos = t[0], t[3]
-            if not re.search(r"[A-Za-zÁÉÍÓÚÑÜáéíóúñü]", text): continue
+            text, pos = t[0], P[i]
+            if not re.search(r"[A-Za-zÁÉÍÓÚÑÜáéíóúñü]", text) or english[i]: continue
             if pos not in ("PROPN", "PUNCT", "SYM", "X", "NUM", "SPACE"):
-                lid = lex_id(L[i], pos)
+                lid = lex_id(L[i], pos, PART[i])
                 if lid is not None: info[i]["l"] = lid
-            if pos in ("VERB", "AUX"):
-                vd = verb_desc(M[i])
+            if pos in ("VERB", "AUX") and not PART[i]:
+                vd = verb_desc(M[i], TAGS[i])
                 if vd: info[i]["v"] = vd
-            c = gn_class(t)
+            elif PART[i]:
+                info[i]["v"] = f"Past participle of {L[i]}, used as an adjective\nIt agrees in gender and number with the noun it describes."
+            c = gn_class(t, L[i])
             if c: info[i]["c"] = c
 
         # ---- perfect tenses / progressive
@@ -495,7 +576,7 @@ def main():
                   open(os.path.join(WEB, "ann", f"{e['n']}.json"), "w", encoding="utf-8"),
                   ensure_ascii=False, separators=(",", ":"))
     json.dump(LEX, open(os.path.join(WEB, "lex.json"), "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
-    print("notes:", dict(stats), "lex:", len(LEX))
+    print("notes:", dict(stats), "lex:", len(LEX), dict(STATS))
 
 if __name__ == "__main__":
     main()

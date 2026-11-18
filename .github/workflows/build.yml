@@ -46,7 +46,7 @@ jobs:
           import sys, zipfile, os
           need = {
               "plain": ["assets/index.html", "assets/transcripts.json"],
-              "study": ["assets/index.html", "assets/transcripts.json", "assets/lex.json", "assets/ann/1.json", "assets/align.json", "assets/conj.json", "assets/ai/1.json"],
+              "study": ["assets/index.html", "assets/transcripts.json", "assets/lex.json", "assets/ann/1.json", "assets/align.json", "assets/conj.json"],
           }
           for fl, files in need.items():
               apk = f"app/build/outputs/apk/{fl}/release/app-{fl}-release.apk"

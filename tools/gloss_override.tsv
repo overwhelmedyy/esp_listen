@@ -1,0 +1,780 @@
+# 人工审校后的词义（覆盖 Wiktionary 自动选出的释义）。格式：原形<TAB>词性<TAB>释义
+el	determiner	the (el before masculine nouns, and before feminine nouns starting with stressed a-: el agua)
+un	determiner	a, an; one
+uno	determiner	one; a, an
+uno	pronoun	one; (impersonal) you, one
+ser	verb	to be (identity, characteristics, origin, profession, time); passive "to be" (fue construido)
+estar	verb	to be (location, temporary state or condition); estar + gerund = to be …-ing
+haber	verb	to have (auxiliary: he comido = I have eaten); hay = there is / there are; hay que = one has to
+me	pronoun	me, to me, for me; myself (object / reflexive pronoun)
+te	pronoun	you, to you, for you; yourself (object / reflexive pronoun)
+nos	pronoun	us, to us; ourselves; each other
+os	pronoun	you (plural), to you; yourselves; each other
+se	pronoun	himself, herself, itself, themselves, yourself (usted); each other; impersonal / passive se; replaces le / les before lo / la
+lo	pronoun	him, it; you (usted, masc.); neuter "it / that" (lo sé = I know it)
+la	pronoun	her, it; you (usted, fem.) — feminine direct object pronoun
+los	pronoun	them, you (ustedes) — masculine plural direct object pronoun
+las	pronoun	them, you (ustedes) — feminine plural direct object pronoun
+le	pronoun	(to / for) him, her, you (usted) — indirect object pronoun
+les	pronoun	(to / for) them, you (ustedes) — indirect object pronoun
+yo	pronoun	I
+ellos	pronoun	they; them (after a preposition)
+ellas	pronoun	they (feminine); them (after a preposition)
+ella	pronoun	she; her (after a preposition); it (feminine)
+él	pronoun	he; him (after a preposition); it (masculine)
+sí	interjection	yes
+sí	adverb	yes; indeed (emphatic: sí que me gusta = I really do like it)
+sí	pronoun	himself, herself, itself, themselves (after a preposition: para sí, en sí)
+mi	determiner	my
+tu	determiner	your (informal, tú)
+su	determiner	his, her, its, their; your (usted / ustedes)
+nuestro	determiner	our, ours
+vuestro	determiner	your, yours (vosotros)
+gustar	verb	to like (lit. to please: me gusta X = I like X — the thing liked is the subject)
+encantar	verb	to love, to delight (works like gustar: me encanta = I love it)
+interesar	verb	to interest (works like gustar: me interesa = I'm interested in it)
+importar	verb	to matter, to care (works like gustar: no me importa = I don't mind / care); to import
+entender	verb	to understand; entenderse (con) = to get along (with)
+hacer	verb	to do; to make; (weather) hace frío = it's cold; (time) hace dos años = two years ago
+así	adverb	like this, like that; so, thus; this way
+venir	verb	to come
+español	noun	Spanish (the language); Spaniard
+inglés	noun	English (the language); Englishman
+francés	noun	French (the language); Frenchman
+alemán	noun	German (the language); German (person)
+comida	noun	food; meal; lunch
+exacto	adjective	exact, precise; ¡exacto! = exactly!
+exacto	noun	¡exacto! = exactly! (as a reply)
+decir	noun	saying; es un decir = it's just a manner of speaking
+profe	noun	teacher (short for profesor / profesora)
+chica	noun	girl; young woman
+chico	noun	boy; young man; chicos = guys, kids
+mano	noun	hand
+gana	noun	desire, wish: tener ganas de = to feel like / look forward to
+padre	noun	father; padres = parents
+hijo	noun	son; child; hijos = children
+madre	noun	mother
+realidad	noun	reality; en realidad = actually, in fact
+complicado	adjective	complicated, difficult
+pareja	noun	couple; partner (boyfriend, girlfriend, spouse); pair
+coger	verb	to take, to catch, to grab, to pick up (Spain; vulgar in much of Latin America)
+cantar	verb	to sing
+gracia	noun	grace, charm; humour (hacer gracia = to amuse); gracias = thanks
+tipo	noun	type, kind, sort; guy, bloke (colloquial)
+chocolate	noun	chocolate; hot chocolate
+alcohol	noun	alcohol
+agua	noun	water
+pan	noun	bread
+acordar	verb	to agree, to decide; acordarse (de) = to remember
+cuenta	noun	bill, check; account; count; darse cuenta = to realise
+acento	noun	accent (way of speaking); written accent mark
+vacación	noun	holiday, vacation (usually plural: vacaciones)
+viaje	noun	trip, journey
+falta	noun	lack; absence; mistake; hacer falta = to be needed
+mayor	adjective	older; bigger, greater; elderly; main (la mayor parte = most)
+quedar	verb	to remain, to be left; to arrange to meet (quedar con alguien); to suit (clothes); quedarse = to stay
+echar	verb	to throw; to put in, to add; echar de menos = to miss (someone)
+sentar	verb	to seat; sentarse = to sit down; sentar bien / mal = to suit / disagree with
+cara	noun	face; nerve, cheek (¡qué cara!)
+casa	noun	house; home
+película	noun	film, movie
+mañana	noun	morning; tomorrow
+mañana	adverb	tomorrow
+general	noun	general (military rank); en general = in general
+general	adjective	general; en general = generally
+planta	noun	plant; floor, storey (of a building); factory
+teléfono	noun	telephone; phone number
+gracias	interjection	thank you, thanks
+gracias	noun	thanks
+tiempo	noun	time; weather; (grammar) tense
+llevar	verb	to carry, to take; to wear; llevar + time = to have been (llevo dos años aquí); (food) to contain
+pasar	verb	to happen; to pass, to go by; to spend (time); to come in (¡pasa!)
+dar	verb	to give; dar miedo / pena / igual = to cause fear / pity / not matter; darse cuenta = to realise
+tomar	verb	to take; to have (food, drink): tomar un café
+poner	verb	to put, to place; to put on, to turn on; ponerse = to put on (clothes), to become (ponerse nervioso)
+volver	verb	to return, to come / go back; volver a + infinitive = to do again; volverse = to become
+seguir	verb	to follow; to continue, to keep on (seguir + gerund = to keep …-ing)
+quedar	verb	to remain, to be left; to arrange to meet (quedar con alguien); to suit (clothes); quedarse = to stay
+deber	verb	must, should, ought to (deber + infinitive); to owe
+acabar	verb	to finish, to end; to end up; acabar de + infinitive = to have just (done)
+creer	verb	to believe; to think (creo que… = I think that…)
+parecer	verb	to seem, to look like; me parece que… = I think that…
+llamar	verb	to call; llamarse = to be called (me llamo… = my name is…)
+encontrar	verb	to find; to meet; encontrarse = to feel; to be (located); to run into
+sentir	verb	to feel; to be sorry (lo siento = I'm sorry); sentirse = to feel (well, sad…)
+pedir	verb	to ask for, to request; to order (food)
+preguntar	verb	to ask (a question)
+contar	verb	to tell (a story); to count; contar con = to rely on
+ganar	verb	to win; to earn; to gain
+perder	verb	to lose; to miss (a train, a chance); perderse = to get lost
+salir	verb	to go out, to leave; to come out; to turn out (salir bien / mal)
+tratar	verb	to treat; tratar de + infinitive = to try to; tratarse de = to be about
+pensar	verb	to think; pensar en = to think about; pensar + infinitive = to plan to
+saber	verb	to know (facts, how to); to find out; saber a = to taste of
+conocer	verb	to know (people, places), to be familiar with; to meet (for the first time, in the preterite)
+aprender	verb	to learn
+mucho	adverb	a lot, much, very much; (a) long (time)
+mucho	determiner	much, a lot of; many
+mucho	pronoun	a lot, much; many (people)
+poco	adverb	little, not much; un poco = a little, a bit
+poco	pronoun	little, not much; few
+poco	determiner	little, not much; few
+siempre	adverb	always
+ya	adverb	already; now; (with no) no longer, not anymore; ¡ya! = I know / right
+claro	adverb	of course, sure, naturally
+claro	adjective	clear; light (colour); bright
+claro	interjection	of course! sure!
+bueno	interjection	well…; OK, fine
+bien	adverb	well; fine, OK; very (bien caro = very expensive)
+que	conjunction	that; than (in comparisons); because, since (colloquial)
+que	pronoun	that, which, who (relative pronoun)
+como	conjunction	as, like; since, because (at the start of a sentence); how
+como	adverb	like, as; about, roughly (como dos horas)
+pero	conjunction	but
+y	conjunction	and; (in questions) and what about…? (¿y tú?)
+o	conjunction	or; o… o… = either… or…
+e	conjunction	and (replaces y before words starting with i- / hi-)
+u	conjunction	or (replaces o before words starting with o- / ho-)
+porque	conjunction	because
+pues	conjunction	well; so, then; because
+pues	adverb	well; so, then
+si	conjunction	if; whether
+cuando	conjunction	when; whenever
+aunque	conjunction	although, even though; even if (+ subjunctive)
+ni	conjunction	nor, not even; ni… ni… = neither… nor…
+sino	conjunction	but (rather), after a negative: no es rojo sino azul
+de	preposition	of; from; about; (made) of; 's (el libro de Ana = Ana's book)
+en	preposition	in, at, on; into; by (en coche = by car)
+con	preposition	with
+para	preposition	for; to, in order to; by (a deadline); towards
+por	preposition	for; by; through, along; because of; per; in (por la mañana)
+a	preposition	to; at; (marks a person as object: veo a Ana)
+del	preposition	of the, from the (de + el)
+al	preposition	to the, at the (a + el); al + infinitive = when / upon …-ing
+qué	pronoun	what; which; ¡qué…! = how…! / what a…!
+qué	determiner	what, which; ¡qué + noun / adjective! = what a…! / how…!
+cómo	adverb	how?; ¿cómo? = sorry? pardon?; ¡cómo…! = how…!
+cuál	pronoun	which (one)?, what?
+quién	pronoun	who?, whom?; de quién = whose?
+dónde	adverb	where?
+cuándo	adverb	when?
+cuánto	determiner	how much?, how many?; ¡cuánto…! = how much…!
+cuánto	pronoun	how much?, how many?
+cuánto	adverb	how much?; ¡cuánto…! = how much…!
+mismo	determiner	same; self (yo mismo = myself); very (ahora mismo = right now)
+mismo	adjective	same; self (yo mismo = myself); very (ahora mismo = right now)
+mismo	pronoun	the same (one); lo mismo = the same thing
+otro	determiner	other, another
+otro	pronoun	another one, the other one; otros = others
+otro	adjective	other, another
+todo	determiner	all, the whole; every (todos los días = every day)
+todo	pronoun	everything, all; todos = everybody
+este	determiner	this
+este	pronoun	this one; (filler) um, er
+ese	determiner	that
+ese	pronoun	that one
+aquel	determiner	that (over there / long ago)
+eso	pronoun	that (neuter); por eso = that's why
+esto	pronoun	this (neuter)
+algo	pronoun	something, anything
+algo	adverb	somewhat, a bit
+nada	pronoun	nothing, (not) anything
+nada	adverb	not at all
+alguno	determiner	some, any; a few
+ninguno	determiner	no, not any; none
+cada	determiner	each, every
+tan	adverb	so, such; tan… como = as… as
+tanto	adverb	so much; tanto… como = both… and / as much as
+tanto	determiner	so much, so many; as much / as many
+más	adverb	more; most; (with no) no más = no more; plus
+menos	adverb	less, least; fewer; minus; except
+muy	adverb	very
+también	adverb	also, too
+tampoco	adverb	neither, not… either
+solo	adverb	only, just
+solo	adjective	alone; lonely; single, sole
+entonces	adverb	then; so, in that case
+ahora	adverb	now
+aquí	adverb	here
+ahí	adverb	there (near the listener)
+allí	adverb	there (over there)
+hoy	adverb	today; nowadays
+todavía	adverb	still, yet
+luego	adverb	later, then; hasta luego = see you later
+después	adverb	afterwards, later; después de = after
+antes	adverb	before, earlier; antes de = before
+nunca	adverb	never
+quizás	adverb	maybe, perhaps
+quizá	adverb	maybe, perhaps
+incluso	adverb	even; including
+además	adverb	besides, also, in addition
+bastante	adverb	quite, fairly; enough
+bastante	determiner	quite a lot of; enough
+demasiado	adverb	too, too much
+demasiado	determiner	too much, too many
+casi	adverb	almost, nearly
+siquiera	adverb	even (ni siquiera = not even); at least
+mal	adverb	badly; wrong; ill
+mejor	adverb	better; best; a lo mejor = maybe
+fuera	adverb	outside, out; fuera de = outside (of)
+dentro	adverb	inside; dentro de = inside; in (time: dentro de dos días)
+tarde	adverb	late
+tarde	noun	afternoon, evening
+nadie	pronoun	nobody, no one, (not) anyone
+alguien	pronoun	somebody, someone, anyone
+ah	interjection	ah, oh
+oye	interjection	hey!, listen!
+vale	interjection	OK, all right (Spain)
+hola	interjection	hello, hi
+adiós	interjection	goodbye
+vez	noun	time, occasion (una vez = once, a veces = sometimes, otra vez = again)
+cosa	noun	thing
+persona	noun	person; personas = people
+gente	noun	people
+verdad	noun	truth; ¿verdad? = right?, isn't it?
+episodio	noun	episode
+año	noun	year
+día	noun	day
+parte	noun	part; side; por otra parte = on the other hand
+forma	noun	form, shape; way (de esta forma = this way)
+manera	noun	way, manner (de esta manera = this way)
+caso	noun	case; en ese caso = in that case; hacer caso = to pay attention
+momento	noun	moment; time
+trabajo	noun	work, job
+idea	noun	idea
+tema	noun	topic, subject, theme; (music) track, song
+nivel	noun	level
+mundo	noun	world; todo el mundo = everybody
+vida	noun	life
+hora	noun	hour; time (¿qué hora es?)
+semana	noun	week
+mes	noun	month
+fin	noun	end; purpose; fin de semana = weekend; por fin = finally
+final	noun	end; final (match)
+hecho	noun	fact; event; de hecho = in fact
+hecho	adjective	done, made; ¡hecho! = deal!
+pasado	noun	past
+pasado	adjective	past, last (el año pasado = last year)
+lado	noun	side; al lado de = next to
+punto	noun	point; full stop; dot; spot; en punto = sharp (time)
+palabra	noun	word
+frase	noun	sentence; phrase
+pregunta	noun	question
+respuesta	noun	answer, reply
+nombre	noun	name; (grammar) noun
+historia	noun	history; story
+sentido	noun	sense; meaning; direction
+modo	noun	way, manner; (grammar) mood; de todos modos = anyway
+favor	noun	favour; por favor = please
+razón	noun	reason; tener razón = to be right
+acuerdo	noun	agreement; de acuerdo = agreed, OK; estar de acuerdo = to agree
+clase	noun	class, lesson; kind, type
+curso	noun	course; school year
+lugar	noun	place; en lugar de = instead of; tener lugar = to take place
+principio	noun	beginning; principle; al principio = at first
+cambio	noun	change; exchange; en cambio = on the other hand
+miedo	noun	fear; tener miedo = to be afraid
+sueño	noun	dream; sleep; tener sueño = to be sleepy
+cuerpo	noun	body
+voz	noun	voice; en voz alta = aloud
+letra	noun	letter (of the alphabet); handwriting; lyrics
+pelo	noun	hair; fur
+humor	noun	humour; mood (de buen humor = in a good mood)
+cultura	noun	culture
+calle	noun	street
+piso	noun	flat, apartment; floor, storey
+habitación	noun	room; bedroom
+tienda	noun	shop, store; tent
+teléfono	noun	telephone; phone number
+televisión	noun	television
+escuela	noun	school
+colegio	noun	school (primary / secondary)
+dinero	noun	money
+regalo	noun	present, gift
+broma	noun	joke, prank
+boda	noun	wedding
+fiesta	noun	party; holiday, festival
+cine	noun	cinema; film (as an art)
+música	noun	music
+amor	noun	love
+error	noun	mistake, error
+recurso	noun	resource; means
+mensaje	noun	message
+grupo	noun	group; band
+número	noun	number
+pueblo	noun	village, town; people (nation)
+empresa	noun	company, business
+serie	noun	series; TV series
+programa	noun	programme, show; program
+ejercicio	noun	exercise
+estilo	noun	style
+montón	noun	pile; un montón de = loads of, a lot of
+objetivo	noun	goal, aim, objective
+propósito	noun	purpose; resolution; a propósito = on purpose / by the way
+éxito	noun	success; hit
+generación	noun	generation
+lista	noun	list
+lista	adjective	clever, smart; ready (estar lista)
+viaje	noun	trip, journey
+seguro	adjective	sure, certain; safe
+seguro	noun	insurance
+junto	adjective	together; junto a = next to
+mejor	adjective	better; best
+peor	adjective	worse; worst
+primero	adjective	first
+primero	adverb	first, firstly
+primer	adjective	first (before a masculine singular noun)
+último	adjective	last; latest
+próximo	adjective	next; near
+único	adjective	only; unique
+mismo	adverb	right, exactly (aquí mismo = right here; ahora mismo = right now)
+real	adjective	real; royal
+cultural	adjective	cultural
+grande	adjective	big, large; great
+gran	adjective	great; big (before a singular noun)
+nuevo	adjective	new
+bonito	adjective	pretty, nice, lovely
+difícil	adjective	difficult, hard
+fácil	adjective	easy
+extraño	adjective	strange, odd; foreign
+cierto	adjective	true; certain (cierta gente = certain people); por cierto = by the way
+cierto	determiner	certain, some (cierta gente = certain people)
+largo	adjective	long
+alto	adjective	tall; high; loud
+fuerte	adjective	strong; loud; intense
+triste	adjective	sad
+igual	adjective	equal, the same; igual que = like
+igual	adverb	the same; maybe (igual llueve = maybe it'll rain); me da igual = I don't mind
+mal	adjective	bad (before a masculine singular noun)
+malo	adjective	bad; evil; ill (estar malo)
+contento	adjective	happy, pleased
+cansado	adjective	tired; tiring
+complicado	adjective	complicated, difficult
+gracioso	adjective	funny, amusing
+súper	adjective	super, great
+súper	adverb	super, really (súper bien = really well)
+visto	adjective	seen; obvious; por lo visto = apparently
+gratuito	adjective	free (of charge)
+joven	adjective	young
+falso	adjective	false; fake
+oyente	adjective	listening, hearing
+oyente	noun	listener
+intermedio	adjective	intermediate
+siesta	noun	siesta, nap
+seo	noun	cathedral (Aragonese / Catalan word)
+tarjeta	noun	card (credit card, business card, etc.)
+carne	noun	meat; flesh
+playa	noun	beach
+periodo	noun	period (of time)
+período	noun	period (of time)
+medio	noun	middle; means, way; medium; medios = media
+medio	adjective	half; middle; average
+medio	adverb	half (medio dormido = half asleep)
+repente	noun	de repente = suddenly
+pesar	noun	sorrow, regret; a pesar de = in spite of, despite
+pesar	verb	to weigh; to be heavy
+quejar	verb	quejarse (de) = to complain (about)
+mío	determiner	mine, of mine (un amigo mío = a friend of mine)
+mío	pronoun	mine (el mío = mine)
+novia	noun	girlfriend; fiancée; bride
+novio	noun	boyfriend; fiancé; groom; novios = couple
+hija	noun	daughter
+compañera	noun	(female) classmate, colleague, partner, companion
+compañero	noun	classmate, colleague, mate, partner, companion
+mono	noun	monkey; overalls
+mono	adjective	cute, pretty (Spain)
+tanto	noun	point, goal (in a game); al tanto = up to date, informed; un tanto = somewhat
+dado	noun	die, dice
+dado	adjective	given; dado que = given that, since
+escucha	noun	listening
+escrito	adjective	written
+chino	adjective	Chinese
+popular	adjective	popular
+meta	noun	goal, target; finish line
+flor	noun	flower
+toro	noun	bull
+microondas	noun	microwave (oven)
+griego	noun	Greek (the language); Greek (person)
+seguro	adverb	surely, certainly
+era	noun	era, age
+cabeza	noun	head
+boca	noun	mouth
+ojo	noun	eye; ¡ojo! = watch out!
+cámara	noun	camera; chamber, room
+red	noun	net; network; las redes (sociales) = social media
+plato	noun	dish (of food); plate; course
+diente	noun	tooth
+mierda	noun	shit (vulgar)
+falsar	verb	to falsify
+estado	noun	state, condition; state (country / region)
+centro	noun	centre, middle; town centre
+estudio	noun	study; studio
+disco	noun	record, album; disc; disco, club
+rato	noun	a while, a short time (un rato = for a bit)
+sol	noun	sun; sunshine
+papel	noun	paper; role, part
+término	noun	term; end
+pelota	noun	ball
+caja	noun	box; till, checkout
+cita	noun	date (romantic); appointment; quotation
+segundo	noun	second (of time); un segundo = just a moment
+segundo	adjective	second
+marca	noun	brand; mark
+calidad	noun	quality
+cantidad	noun	amount, quantity
+basura	noun	rubbish, trash, garbage
+negocio	noun	business; deal
+paso	noun	step; pace; passage, way
+gusto	noun	taste; pleasure (mucho gusto = nice to meet you); a gusto = comfortable
+plan	noun	plan
+carrera	noun	race; career; university degree
+máquina	noun	machine
+sistema	noun	system
+uso	noun	use, usage
+suerte	noun	luck; ¡suerte! = good luck!
+vuelta	noun	return; turn, lap; walk (dar una vuelta = to go for a walk / a spin)
+luz	noun	light; electricity
+equipo	noun	team; equipment
+cuestión	noun	question, matter, issue
+ayuda	noun	help
+crítica	noun	criticism; review
+contenido	noun	content
+perdón	noun	forgiveness, pardon
+perdón	interjection	sorry!, excuse me
+cuando	adverb	when
+mientras	conjunction	while; as long as; mientras que = whereas
+mientras	adverb	meanwhile, in the meantime
+igual	adverb	the same; maybe (igual llueve = maybe it'll rain); me da igual = I don't mind
+tocar	verb	to touch; to play (an instrument); to be someone's turn (te toca = it's your turn)
+sacar	verb	to take out, to get out; to get (a grade); sacar una foto = to take a photo
+mantener	verb	to keep, to maintain; to support (financially)
+invitar	verb	to invite; to treat (te invito = it's on me)
+apetecer	verb	to feel like (works like gustar: me apetece un café = I fancy a coffee)
+eh	interjection	hey!; eh?, right?; um
+mandar	verb	to send; to order, to be in charge
+morir	verb	to die; morirse de = to be dying of (hunger, laughter…)
+despedir	verb	to see off, to say goodbye to; to fire (from a job); despedirse = to say goodbye
+casar	verb	casarse (con) = to get married (to); to marry (two people)
+mudar	verb	mudarse = to move (house); to change; to shed (skin)
+esforzar	verb	esforzarse = to make an effort, to try hard
+limpiar	verb	to clean; to wipe
+probar	verb	to try, to taste; to try on (clothes); to test; to prove
+aguantar	verb	to stand, to put up with; to hold (on)
+mover	verb	to move
+traer	verb	to bring
+caer	verb	to fall; caer bien / mal = to like / dislike (someone): me cae bien
+cerrar	verb	to close, to shut; to turn off
+tirar	verb	to throw; to throw away; to pull
+marcar	verb	to mark; to score (a goal); to dial
+cumplir	verb	to fulfil, to carry out; cumplir años = to have a birthday
+convertir	verb	to turn into, to convert; convertirse en = to become
+formar	verb	to form, to make up; to train, to educate
+lanzar	verb	to throw; to launch, to release
+celebrar	verb	to celebrate; to hold (a meeting, an event)
+apoyar	verb	to support; to lean
+demás	pronoun	the rest, the others (los demás = other people)
+demás	determiner	the other, the remaining
+encima	adverb	on top; above; on top of that, besides; por encima = above / superficially
+delante	adverb	in front, ahead; delante de = in front of
+detrás	adverb	behind; detrás de = behind
+lejos	adverb	far, far away; lejos de = far from
+eh	interjection	hey!; eh?, right?; um
+bajo	adjective	low; short (height); quiet (voice)
+bajo	preposition	under, below
+antiguo	adjective	old, ancient; former
+loco	adjective	crazy, mad
+corto	adjective	short
+caro	adjective	expensive; dear
+duro	adjective	hard; tough; difficult
+directo	adjective	direct; live (en directo = live)
+serio	adjective	serious; en serio = seriously, really
+familiar	adjective	family (adj.); familiar
+familiar	noun	relative, family member
+político	adjective	political; (relatives) in-law: hermano político = brother-in-law
+abierto	adjective	open; open-minded
+vivo	adjective	alive, living; lively; bright (colour)
+enfermo	noun	sick person, patient
+enfermo	adjective	ill, sick
+natural	adjective	natural
+simple	adjective	simple; mere
+interesado	adjective	interested
+relajado	adjective	relaxed
+completo	adjective	complete; full
+actual	adjective	current, present-day (not "actual")
+raro	adjective	strange, odd, weird; rare
+curioso	adjective	curious; strange, odd; interesting
+cómodo	adjective	comfortable; convenient
+incómodo	adjective	uncomfortable; awkward
+dulce	adjective	sweet
+justo	adjective	fair; just; tight (time, size)
+justo	adverb	just, exactly, right (justo ahora = right now)
+pronto	adverb	soon; early; de pronto = suddenly
+dispuesto	adjective	willing, ready (dispuesto a = willing to)
+preparado	adjective	ready, prepared; qualified
+menudo	noun	a menudo = often
+menudo	adjective	small, slight; ¡menudo…! = what a…! (menudo lío = what a mess); a menudo = often
+ordenador	noun	computer (Spain)
+plátano	noun	banana; plantain
+brazo	noun	arm
+dedo	noun	finger; toe
+hombro	noun	shoulder
+pie	noun	foot; a pie = on foot; de pie = standing
+dramático	adjective	dramatic
+regla	noun	rule; ruler (for measuring); period (menstruation)
+pescado	noun	fish (as food)
+queso	noun	cheese
+primo	noun	cousin
+prima	noun	(female) cousin; bonus
+tío	noun	uncle; guy, mate (colloquial, Spain)
+tía	noun	aunt; woman, girl (colloquial, Spain)
+profesora	noun	(female) teacher
+jefa	noun	(female) boss
+directora	noun	(female) director, head; headmistress
+niña	noun	girl, (female) child
+niño	noun	boy, child; niños = children
+concreto	adjective	specific, particular; concrete; en concreto = specifically
+concreto	noun	en concreto = specifically, in particular
+pasivo	adjective	passive
+nervioso	adjective	nervous; on edge
+cual	pronoun	which, who (el cual, la cual, lo cual = which); cada cual = each one
+poder	noun	power
+frijol	noun	bean
+enfermo	adjective	ill, sick
+flipar	verb	to be amazed, to freak out (colloquial, Spain); to love (me flipa = I love it)
+estudiante	adjective	student (adj.)
+correr	verb	to run; to hurry
+mar	noun	sea
+rey	noun	king
+rico	adjective	rich; tasty, delicious; cute (of a child)
+picar	verb	to sting, to bite; to itch; to be spicy; to snack, to nibble; to chop
+factor	noun	factor
+color	noun	colour
+julio	noun	July
+salsa	noun	sauce; salsa (music / dance)
+toque	noun	touch; knock; ring (on the phone)
+cerca	adverb	near, close; cerca de = near, about (cerca de cien = about a hundred)
+faltar	verb	to be missing, to be lacking (works like gustar: me falta tiempo = I don't have enough time); to be absent
+soler	verb	to usually (do), to tend to (suelo levantarme temprano = I usually get up early)
+sitio	noun	place, spot; site, website
+partido	noun	match, game; (political) party
+nota	noun	note; mark, grade
+camino	noun	way, path, road
+peli	noun	film, movie (colloquial)
+cuidar	verb	to look after, to take care of; cuidarse = to look after oneself
+política	noun	politics; policy
+educado	adjective	polite, well-mannered (not "educated")
+educación	noun	education; upbringing; manners
+decorar	verb	to decorate
+pasta	noun	pasta; paste; money (colloquial, Spain)
+juego	noun	game; play; set
+tuyo	pronoun	yours (el tuyo = yours)
+tuyo	determiner	yours, of yours (un amigo tuyo = a friend of yours)
+suyo	determiner	his, hers, theirs, yours (usted), of his / hers…
+suyo	pronoun	his, hers, theirs, yours (usted) (el suyo)
+señor	noun	sir, Mr; gentleman; lord
+señora	noun	madam, Mrs; lady; wife
+limpio	adjective	clean
+blanco	adjective	white
+blanco	noun	white; target
+verdura	noun	vegetable; verduras = vegetables
+valenciano	noun	Valencian (person); Valencian (language, a variety of Catalan)
+pillar	verb	to catch; to get (a joke, an idea) (colloquial)
+fijar	verb	to fix, to set; fijarse (en) = to notice, to pay attention (to)
+alegrar	verb	to make happy; alegrarse (de) = to be glad (about)
+enfadar	verb	to annoy; enfadarse = to get angry
+relajar	verb	to relax; relajarse = to relax
+confundir	verb	to confuse, to mix up; confundirse = to make a mistake
+despertar	verb	to wake (someone) up; despertarse = to wake up
+parar	verb	to stop
+meter	verb	to put (in), to insert; meterse en = to get into / meddle in
+presentar	verb	to present; to introduce (someone); presentarse = to introduce oneself
+burlar	verb	burlarse de = to make fun of; to trick
+escapar	verb	to escape; escaparse = to run away, to get away
+ni	adverb	not even (ni siquiera = not even)
+mismo	adverb	right, exactly (aquí mismo = right here; ahora mismo = right now)
+apenas	adverb	hardly, barely; as soon as
+aparte	adverb	apart, separately; aparte de = apart from
+alrededor	adverb	around; alrededor de = around, about
+según	preposition	according to; depending on
+excepto	preposition	except
+derecho	noun	right (legal / moral); law (subject)
+derecho	adjective	straight; right (side)
+vista	noun	sight, eyesight; view; hasta la vista = see you
+servir	verb	to serve; to be useful (¿para qué sirve? = what is it for?)
+callar	verb	to be quiet, to keep quiet; ¡cállate! = shut up!
+noticia	noun	piece of news; noticias = news
+pobre	adjective	poor
+silla	noun	chair
+dolor	noun	pain; ache (dolor de cabeza = headache)
+copa	noun	glass (wine glass); drink; cup (trophy)
+suelo	noun	floor; ground
+hábito	noun	habit
+línea	noun	line
+vago	adjective	lazy; vague
+gordo	adjective	fat
+casero	adjective	homemade; home-loving
+regalar	verb	to give (as a present)
+oferta	noun	offer; special offer, deal
+escenario	noun	stage; setting, scenario
+dulce	noun	sweet, dessert
+odio	noun	hatred, hate
+intermedio	noun	intermission, break
+alemán	noun	German (the language); German (person)
+reina	noun	queen
+bajón	noun	slump, low (mood); drop (colloquial: me dio un bajón = I felt down)
+cerebro	noun	brain
+espalda	noun	back (of the body)
+garganta	noun	throat
+patata	noun	potato
+jugo	noun	juice; sacar jugo a = to make the most of
+través	noun	a través de = through, across, by means of
+embargo	noun	sin embargo = however, nevertheless
+cuidado	adjective	careful, neat
+cuidado	noun	care; ¡cuidado! = be careful!; tener cuidado = to be careful
+embarazado	adjective	pregnant (embarazada) — not "embarrassed"
+cuanto	noun	en cuanto = as soon as; en cuanto a = as for
+cuanto	adverb	cuanto más… más = the more… the more; en cuanto = as soon as
+contra	noun	los pros y los contras = the pros and cons
+contra	preposition	against
+enterar	verb	enterarse (de) = to find out (about), to hear (about)
+acostar	verb	acostarse = to go to bed, to lie down; to put to bed
+mayo	noun	May
+dicho	adjective	said, mentioned; dicho y hecho = no sooner said than done
+dicho	noun	saying
+puesto	noun	position, job; stall; place
+supuesto	noun	assumption; por supuesto = of course
+supuesto	adjective	supposed, alleged
+mueble	noun	piece of furniture; muebles = furniture
+basado	adjective	based (on)
+cola	noun	queue, line; tail; glue
+tapa	noun	lid, cap; tapa (small dish served in bars)
+toma	noun	taking; shot, take (filming); ¡toma! = take that! / wow!
+presente	noun	present (time); (grammar) present tense
+frío	noun	cold; tener frío = to be cold; hace frío = it's cold
+nada	noun	nothing, nothingness
+diario	noun	diary; daily newspaper; a diario = daily
+diario	adjective	daily
+nido	noun	nest
+naranja	noun	orange
+lengua	noun	language; tongue
+criatura	noun	creature; baby, small child
+cuadro	noun	painting, picture; square (pattern): a cuadros = checked
+gato	noun	cat
+huevo	noun	egg
+tal	adjective	such; ¿qué tal? = how are you? / how was it?
+tal	pronoun	such, such a thing; tal vez = maybe; con tal de que = provided that
+partir	verb	to split, to divide; to leave; a partir de = from (… onwards)
+particular	noun	private individual
+solitario	adjective	lonely; solitary
+vaso	noun	glass (for drinking)
+respecto	noun	respecto a / con respecto a = regarding, with respect to
+entrada	noun	entrance; ticket; starter (food)
+orden	noun	order (sequence; command)
+abuelo	noun	grandfather; abuelos = grandparents
+abuela	noun	grandmother
+pastilla	noun	pill, tablet
+marino	adjective	marine, sea (adj.)
+manga	noun	sleeve; manga (comic)
+grasa	noun	fat; grease
+ocho	noun	eight
+acostumbrar	verb	acostumbrarse a = to get used to; acostumbrar a = to be in the habit of
+pescar	verb	to fish; to catch
+conocido	adjective	known, well-known
+conocido	noun	acquaintance
+fuerza	noun	strength, force; a la fuerza = by force
+destino	noun	destiny, fate; destination
+médico	noun	doctor
+médico	adjective	medical
+clave	noun	key (to a problem); password, code
+clave	adjective	key, crucial
+plaza	noun	square (town square); place, seat
+juicio	noun	judgement; trial
+grado	noun	degree; grade
+costumbre	noun	custom, habit
+tarea	noun	task; homework
+trato	noun	treatment, manner (towards people); deal
+llamada	noun	call (phone call)
+gay	adjective	gay
+risa	noun	laughter, laugh; me da risa = it makes me laugh
+receta	noun	recipe; prescription
+cerdo	noun	pig; pork
+culpa	noun	fault, blame; guilt (tener la culpa = to be to blame)
+oído	noun	ear (inner); hearing
+viejo	adjective	old
+feo	adjective	ugly; nasty
+argumento	noun	argument; plot (of a film / book)
+resfriado	noun	cold (illness)
+hueco	noun	gap, hole; free slot (of time)
+audio	noun	audio; voice message
+capital	noun	capital (city); capital (money)
+montar	verb	to ride; to get on (a vehicle); to set up, to put together; montar un lío = to make a fuss
+montaña	noun	mountain
+radio	noun	radio
+impresión	noun	impression; printing
+ánimo	noun	spirit, mood; ¡ánimo! = cheer up! / go for it!
+negro	adjective	black
+cariño	noun	affection; darling, love (as a term of address)
+fresco	adjective	fresh; cool; cheeky (colloquial)
+compromiso	noun	commitment; engagement
+pensión	noun	guesthouse; pension
+muerto	adjective	dead; dead tired
+batería	noun	battery; drums, drum kit
+foco	noun	focus; spotlight
+fijo	adjective	fixed; steady, permanent
+mono	adjective	cute, pretty (Spain)
+banda	noun	band (music); gang; strip
+avanzar	verb	to advance, to move forward; to make progress
+tender	verb	tender a = to tend to; to hang out (washing); to stretch out
+jacuzzi	noun	jacuzzi, hot tub
+mezclar	verb	to mix
+ocurrir	verb	to happen; ocurrírsele a alguien = to occur to someone (se me ocurre = it occurs to me)
+huésped	noun	guest; host (biology)
+gol	noun	goal
+te	noun	tea (té)
+té	noun	tea
+aguacate	noun	avocado
+acabo	noun	end, completion (al acabo = in the end)
+loco	noun	madman, crazy person
+duro	noun	(old) five-peseta coin; hard part
+pollo	noun	chicken
+flamenco	noun	flamenco (music and dance); Fleming; flamingo
+trauma	noun	trauma
+pánico	adjective	panic (adj.)
+pánico	noun	panic
+bebida	noun	drink, beverage
+perro	noun	dog
+cava	noun	cava (Spanish sparkling wine); wine cellar
+fregona	noun	mop
+medio	adjective	half; middle; average
+pinta	noun	look, appearance (tener buena pinta = to look good); pint
+caca	noun	poo; rubbish (colloquial)
+sobremesa	noun	sobremesa: time spent chatting at the table after a meal
+hombre	interjection	man!, come on! (hombre, claro = well, of course)
+hombre	noun	man
+qué	interjection	what! (surprise)
+sí	noun	yes (dar el sí = to say yes)
+cole	noun	school (colloquial)
+camarera	noun	waitress
+inglesa	noun	Englishwoman
+sobrina	noun	niece
+autora	noun	(female) author
+pija	noun	posh girl, snob (Spain, colloquial)
+pijo	adjective	posh, snobbish (Spain, colloquial)
+mal	noun	evil, harm; illness
+ser	noun	being (ser humano = human being)
+habla	noun	speech; de habla hispana = Spanish-speaking
+sabes	interjection	you know? (¿sabes?)
+causa	noun	cause; a causa de = because of
+frente	noun	front; forehead; frente a = opposite, facing
+fuente	noun	source; fountain; serving dish
+baja	noun	sick leave (estar de baja); drop; casualty
+ir	verb	to go; ir a + infinitive = to be going to; irse = to leave, to go away
+tener	verb	to have; tener que + infinitive = to have to; tener … años = to be … years old
+poder	verb	can, to be able to; may (permission / possibility)
+decir	verb	to say, to tell; es decir = that is to say; querer decir = to mean
+querer	verb	to want; to love (te quiero = I love you); querer decir = to mean
+hablar	verb	to speak, to talk
+ver	verb	to see; to watch; tener que ver con = to have to do with; a ver = let's see
+marisco	noun	seafood, shellfish
+regular	verb	to regulate, to control
+regular	adjective	regular; so-so, average (¿qué tal? — regular = so-so)
