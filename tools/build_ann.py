@@ -81,7 +81,7 @@ def verb_desc(m, tags=None):
     if extra: hint = (hint + " " if hint else "") + extra
     return " · ".join(parts) + ("\n" + hint if hint else "")
 
-NOUN_G = {}
+NOUN_G = {"performance": "Fem", "tilde": "Fem", "pijama": "Masc", "macro": "Fem"}   # 依据 Collins 修正
 def noun_gender(lemma):
     if lemma not in NOUN_G:
         gs = {x.get("g") for x in W.get(lemma, []) if x["pos"] == "n" and x.get("g")}
@@ -202,6 +202,7 @@ SUBJ_TRIGGERS = [
 
 STATS = collections.Counter()
 ENG_STOP = set("the of and to a in is it you that this for on with as are be at by have from or an not but what all were we when your can said there use each which she do how their if will up other about out many then them these so some her would make like him into time has look two more write go see number no way could people my than first been call who its now find long down day did get come made may part episode podcast welcome hello".split())
+ENG_ONLY = set("the to yes out is are of and you false beginner beginners listening".split())
 def english_mask(toks, starts):
     """英文句子（节目开头的英文介绍等）不加西语注释"""
     mask = [False] * len(toks)
@@ -241,13 +242,26 @@ def build_episode(paras):
         info = [dict() for _ in toks]
         sent_starts = [i for i, t in enumerate(toks) if t[7] or i == 0]
         english = english_mask(toks, sent_starts)
+        # 引号里夹的英文（“false beginner”）和明显的英文虚词也不注释
+        q0 = None
+        for i, t in enumerate(toks):
+            if t[0] in ("“", '"', "«") and q0 is None: q0 = i; continue
+            if t[0] in ("”", '"', "»") and q0 is not None:
+                inside = [low[k] for k in range(q0 + 1, i)]
+                if any(w in ENG_STOP or w in ENG_ONLY for w in inside):
+                    for k in range(q0 + 1, i): english[k] = True
+                q0 = None
+        for i in range(N):
+            if low[i] in ENG_ONLY: english[i] = True
         L, P, PART, TAGS = [], [], [], [None] * N
         for i, t in enumerate(toks):
             if not re.search(r"\w", t[0]) or english[i]:
                 L.append(t[0] if not english[i] else low[i]); P.append(t[3] if not english[i] else "X"); PART.append(False); continue
             lem, pos, part = resolve(t[0], t[2], t[3])
             if low[i] == "sí" and not (i > 0 and low[i - 1] in ("para", "en", "por", "de", "a", "con", "entre", "sobre", "ante", "contra", "hacia", "desde", "sin")):
-                lem, pos, part = "sí", "INTJ", False          # “sí” = yes（介词后面才是反身代词 sí）
+                lem, pos, part = "sí", "ADV", False           # “sí” = yes（介词后面才是反身代词 sí）；Collins 标为副词
+            if low[i] in ("exacto", "exactamente", "perfecto", "genial") and (i + 1 >= N or not re.search(r"\w", toks[i + 1][0])) and (i == 0 or not re.search(r"\w", toks[i - 1][0])):
+                lem, pos, part = low[i] if low[i] != "exactamente" else "exactamente", ("INTJ" if low[i] == "exacto" else pos), False
             if low[i] == "vale" and (i + 1 >= N or not re.search(r"\w", toks[i + 1][0])) and (i == 0 or not re.search(r"\w", toks[i - 1][0]) or low[i - 1] in ("y", "pues", "bueno", "ah", "vale")):
                 lem, pos, part = "vale", "INTJ", False        # “¡Vale!” = OK
             elif low[i] == "vale" and i + 1 < N and low[i + 1] == "," and i > 0 and not re.search(r"\w", toks[i - 1][0]):

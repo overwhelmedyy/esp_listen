@@ -21,6 +21,7 @@ ANALOG = {   # 动词: (同规律的模板动词, [(模板词干, 新词干), ..
 }
 FORCE = {   # verbecc 猜错模板的动词：直接用正确的模板动词替换词干
     "atrever": ("temer", [("tem", "atrev")]),
+    "complacer": ("nacer", [("nac", "complac"), ("naz", "complaz")]),
 }
 # 真正的不规则过去分词；verbecc 给出的其它非 -ado/-ido 形式（electo, nato, correcto…）是形容词，复合时态要用规则分词
 IRREG_PP = set("""abierto cubierto descubierto dicho contradicho predicho escrito descrito inscrito suscrito
@@ -66,7 +67,16 @@ def conj_one(cg, v):
     d["pp"] = strip(m["participo"]["participo"][0]) if m.get("participo") else ""
     if d["pp"] and not d["pp"].endswith(("ado", "ido", "ído")) and d["pp"] not in IRREG_PP:
         d["pp"] = regular_pp(base)
-    if base == "haber": d["f"]["ip"][2] = "ha"          # hay 只用于无人称“有”
+    if base == "haber":
+        d["f"]["ip"][2] = "ha"          # hay 只用于无人称“有”
+        d["f"]["ia"][0] = "he"
+    if base == "valer": d["f"]["ia"][0] = "vale"
+    for root, imp in (("tener", "tén"), ("poner", "pón"), ("venir", "vén")):   # 复合动词的 tú 命令式带重音：mantén, propón, prevén
+        if base.endswith(root) and base != root:
+            d["f"]["ia"][0] = base[:-len(root)] + imp
+    if base.endswith("reír"):           # 单音节不加重音（RAE 2010）：riais
+        d["f"]["sp"] = [f.replace("riáis", "riais") for f in d["f"]["sp"]]
+        d["f"]["in"] = [f.replace("riáis", "riais") for f in d["f"]["in"]]
     if r["verb"].get("predicted") and base not in FORCE: d["pred"] = 1
     d["tpl"] = r["verb"].get("template", "").replace(":", "")
     return base, d

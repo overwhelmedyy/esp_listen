@@ -120,8 +120,9 @@ SWITCH = {    # 词性在词典里查不到时，可以改判成的词性（按�
     "adv": ["adj", "conj", "prep", "pron", "interj"], "pron": ["adv", "determiner", "adj"], "determiner": ["pron", "adj", "adv"],
     "interj": ["v", "adv", "n", "adj"], "prep": ["adv", "conj"], "conj": ["adv", "prep"],
 }
-FIXED = {"contigo": ("contigo", "ADV"), "conmigo": ("conmigo", "ADV"), "consigo": ("consigo", "ADV"),
-         "del": ("del", "ADP"), "al": ("al", "ADP"), "gracias": ("gracias", "INTJ"), "y": ("y", "CCONJ"), "e": ("e", "CCONJ")}
+FIXED = {"contigo": ("contigo", "PRON"), "conmigo": ("conmigo", "PRON"), "consigo": ("consigo", "PRON"),
+         "donde": ("donde", "ADV"), "dónde": ("dónde", "ADV"), "okey": ("okey", "INTJ"), "okay": ("okay", "INTJ"),
+         "del": ("del", "ADP"), "al": ("al", "ADP"), "gracias": ("gracias", "INTJ"), "muy": ("muy", "ADV"), "sea": ("ser", "AUX"), "es": ("ser", "AUX"), "y": ("y", "CCONJ"), "e": ("e", "CCONJ")}
 BACK = {"n": "NOUN", "v": "VERB", "adj": "ADJ", "adv": "ADV", "prep": "ADP", "conj": "CCONJ", "pron": "PRON",
         "determiner": "DET", "art": "DET", "interj": "INTJ", "contraction": "ADP", "num": "NUM"}
 
@@ -136,6 +137,7 @@ def masc_sing(form):
         if form.endswith(a): c.append(form[:-len(a)] + b)
     return c
 
+PERS_PRON = set("ella ellas ellos ello nosotros nosotras vosotros vosotras la las los le les lo usted ustedes me te se nos os mí ti conmigo contigo".split())
 def resolve(text, lemma, pos):
     """返回 (原形, spaCy 风格词性, 是否是过去分词形容词)；查不到返回 (None, pos, False)"""
     form = text.lower()
@@ -149,7 +151,7 @@ def resolve(text, lemma, pos):
         if has_pos(form, p) and form not in cands: cands.append(form)
         if cands:
             best = sl if sl in cands else min(cands, key=lambda c: FREQ.get((c, wp), FREQ.get(c, 10**6)))
-            if p == "pron" and form in cands: best = form          # ella / ellos / nosotras 本身就是词条
+            if p == "pron" and form in cands and form in PERS_PRON: best = form          # ella / ellos / nosotras 本身就是词条
             return best, pos, False
         if p in ("adj", "n", "determiner", "pron"):
             for c in masc_sing(form):
