@@ -109,6 +109,7 @@
     box-shadow: 0 3px 10px rgba(194,65,12,.3); display: grid; place-items: center; }
   #speedRow { display: flex; gap: 5px; }
   #speedRow button { flex: 1; height: 2.1em; border-radius: 8px; border: 1px solid var(--line); font-size: .88em; font-weight: 600; }
+  #speedRow #modeBtn { flex: none; width: 2.6em; font-size: 1em; }
   #speedRow button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
   #alignRow { display: none; gap: 5px; margin-bottom: 6px; align-items: stretch; }
   body.align #alignRow { display: flex; }
@@ -253,18 +254,30 @@ const player = native ? {
   seekTo(ms) { Android.seekTo(Math.round(ms)); },
   seekBy(ms) { Android.seekBy(Math.round(ms)); },
   speed(x) { Android.setSpeed(x); },
+  mode(m) { if (Android.setMode) Android.setMode(m); },
+  queue(names) { if (Android.setQueue) Android.setQueue(JSON.stringify(names)); },
   state() { try { return JSON.parse(Android.state()); } catch { return null; } },
   folderName() { try { return Android.folderName() || ''; } catch { return ''; } },
 } : (() => {
-  const au = new Audio(); let files = [];
+  const au = new Audio(); let files = [], q = [], cur = null, mode = 'stop';
   au.preservesPitch = true;
-  return {
+  au.addEventListener('ended', () => {
+    window.onPlayerEvent('completed');
+    if (mode === 'list' && q.length) {
+      const nx = q[(q.indexOf(cur) + 1) % q.length];
+      obj.load(nx, 0); window.onPlayerEvent('next:' + nx);
+    }
+  });
+  const obj = {
+    mode(m) { mode = m; au.loop = m === 'one'; },
+    queue(names) { q = names; },
     pick() { $('dirInput').click(); },
     setFiles(fs) { files = fs; },
     list() { return files.map(f => ({ name: f.name })); },
     load(entry, startMs) {
       const f = files.find(x => x.name === entry);
       if (!f) return;
+      cur = entry;
       if (au.src) URL.revokeObjectURL(au.src);
       au.src = URL.createObjectURL(f);
       au.addEventListener('loadedmetadata', () => { au.currentTime = startMs / 1000; au.play().catch(() => {}); }, { once: true });
@@ -278,6 +291,7 @@ const player = native ? {
     state() { return { pos: au.currentTime * 1000, dur: (au.duration || 0) * 1000, playing: !au.paused }; },
     folderName() { return files.length ? '已选择的文件夹' : ''; },
   };
+  return obj;
 })();
 
 $('dirInput').addEventListener('change', e => {
@@ -287,6 +301,7 @@ $('dirInput').addEventListener('change', e => {
 window.onFolderPicked = () => refreshAudio();
 window.onPlayerEvent = ev => {
   if (ev === 'completed') saveProgress(true);
+  if (ev && ev.startsWith && ev.startsWith('next:')) followNext(ev.slice(5));
   if (ev && ev.startsWith && ev.startsWith('error')) toast('无法播放：' + ev.slice(6));
 };
 
@@ -304,6 +319,7 @@ function refreshAudio() {
     : (fname ? `${fname}：没有找到音频文件` : '还没有选择音频文件夹');
   $('pickBtn').textContent = n ? '更换文件夹' : '选择音频文件夹';
   renderList();
+  syncQueue();
 }
 
 /* ======================================================================
@@ -349,13 +365,18 @@ $('pickBtn').onclick = () => player.pick();
  * 优先用本机标注，没有的话用打包进 app 的（web/align.json）
  * ==================================================================== */
 let BUILTIN_ALIGN = {};
+// 按句合并：本机手动标过的句子用手动的，其余用内置的（YouTube 字幕生成）
 function getAlign(n) {
-  const a = store.get('align', {})[n];
-  return a ? a.slice() : (BUILTIN_ALIGN[n] ? BUILTIN_ALIGN[n].slice() : []);
+  const u = store.get('align', {})[n] || [], b = BUILTIN_ALIGN[n] || [];
+  const len = Math.max(u.length, b.length), out = [];
+  for (let i = 0; i < len; i++) out.push(u[i] != null ? u[i] : (b[i] != null ? b[i] : null));
+  return out;
 }
+// 只保存和内置时间不同的句子，这样内置时间以后更新也能用上
 function setAlign(n, arr) {
-  const all = store.get('align', {});
-  all[n] = arr.map(x => x == null ? null : Math.round(x));
+  const all = store.get('align', {}), b = BUILTIN_ALIGN[n] || [];
+  const mine = arr.map((x, i) => x == null || (b[i] != null && Math.abs(x - b[i]) < 1) ? null : Math.round(x));
+  if (mine.some(x => x != null)) all[n] = mine; else delete all[n];
   store.set('align', all);
 }
 
@@ -648,6 +669,7 @@ $('sheet').addEventListener('click', ev => {
   }
   if (act === 'toggle') { toggleLayer(b.dataset.key); renderSettings(true); }
   if (act === 'help') renderHelp();
+  if (act === 'mode') setMode(b.dataset.mode, true);
   if (act === 'conj') renderConj(b.dataset.verb, b.dataset.form);
   if (act === 'aiSent') renderAiSentence(+b.dataset.s);
   if (act === 'backWord' && lastWord) showWord(lastWord.pi, lastWord.ti, lastWord.el);
@@ -684,6 +706,7 @@ function renderSettings(keepScroll) {
   for (const l of LAYERS) {
     h += `<div class="row"><div>${l.label}${l.sub ? `<small>${l.sub}</small>` : ''}</div><button class="switch ${layerOn(l.key) ? 'on' : ''}" data-act="toggle" data-key="${l.key}"></button></div>`;
   }
+  h += `<div class="row"><div>播放模式</div><div style="display:flex;gap:6px">${MODE_ORDER.map(m => `<button class="pill ${store.get('mode', 'stop') === m ? 'on' : ''}" data-act="mode" data-mode="${m}">${MODES[m][1]}</button>`).join('')}</div></div>`;
   h += `<div class="row"><div>字号 <small>${store.get('fontSize', 19)}px</small></div><div style="display:flex;gap:8px"><button class="pill" data-act="fontDown">A−</button><button class="pill" data-act="fontUp">A+</button></div></div>`;
   h += `<div class="sec"><div class="lbl">性数颜色说明</div><div class="legend">
     <span style="color:var(--ms)"><b>■</b> 阳性单数</span><span style="color:var(--fs)"><b>■</b> 阴性单数</span>
@@ -751,17 +774,26 @@ function renderHelp() {
     '锁屏或切到别的 App 继续播放，通知栏和耳机线控可以控制',
     '每集会记住播放进度和文本滚动位置',
   ]);
+  h += sec('时间轴', [
+    '除第 142 集外，所有有逐字稿的集都内置了时间轴（由 YouTube 字幕生成），打开就能高亮当前句、点 ▶ 从某句播放',
+    '个别句子不准时，用下面的手动对齐重标那几句即可；手动标的句子优先，其余仍用内置时间',
+  ]);
   h += sec('手动对齐', [
     '右上角「对齐」打开对齐模式，高亮的是正在听的句子，第一句从 0 秒开始',
     '这句说完时按「标记 ▸」，按下的时刻记为下一句的开始，高亮移到下一句',
     '撤销：取消上一次标记；−0.2s / +0.2s：微调刚标的分句点并从那里重播',
-    '设置 → 清除本集对齐：需要确认两次，并输入 clear',
+    '设置 → 清除本集对齐：只清除你手动标的，恢复内置时间轴；需要确认两次，并输入 clear',
     '点任意句子：从那句接着标（最好选已经有开始时间的句子）',
     '标好的集：播放时高亮当前句并自动跟随滚动；手动滑动文本后会暂停跟随几秒',
   ]);
   h += sec('从某句开始播放（已对齐的句子）', [
     '点句首的 ▶',
     '长按句子里任意一个词（电脑上用右键）',
+  ]);
+  h += sec('播放模式（底部倍速右边的按钮，或设置里切换）', [
+    '🔁 列表循环：一集播完自动播下一集，最后一集之后回到第一集；锁屏也会接着播',
+    '🔂 单集循环：这一集反复播放',
+    '⏹ 播完停止：播完这一集就停',
   ]);
   h += sec('注释', [
     '点任意单词：原形、词性和英文释义、动词变位、语法结构、固定搭配、宾语；点卡片外面就关掉',
@@ -993,6 +1025,38 @@ function setSpeed(x) {
   document.querySelectorAll('[data-speed]').forEach(b => b.classList.toggle('on', +b.dataset.speed === x));
 }
 
+/* ---------- 播放模式：列表循环 / 单集循环 / 播完停止
+ * 循环和切到下一集都由原生播放器完成，所以锁屏、切到后台也照样生效 ---------- */
+const MODES = { list: ['🔁', '列表循环'], one: ['🔂', '单集循环'], stop: ['⏹', '播完停止'] };
+const MODE_ORDER = ['list', 'one', 'stop'];
+const modeBtn = document.createElement('button');
+modeBtn.id = 'modeBtn';
+modeBtn.onclick = () => setMode(MODE_ORDER[(MODE_ORDER.indexOf(store.get('mode', 'stop')) + 1) % MODE_ORDER.length], true);
+$('speedRow').append(modeBtn);
+function setMode(m, announce) {
+  if (!MODES[m]) m = 'stop';
+  store.set('mode', m);
+  player.mode(m);
+  modeBtn.textContent = MODES[m][0];
+  modeBtn.title = MODES[m][1];
+  document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  if (announce) toast(MODES[m][1]);
+}
+// 列表循环的顺序 = 列表里的剧集顺序（只算找到了音频的）
+function syncQueue() {
+  player.queue(EPISODES.filter(e => e.yt && audioByYt[e.yt]).map(e => audioByYt[e.yt]));
+}
+// 原生播放器已经切到下一集：界面跟过去
+function followNext(name) {
+  const e = EPISODES.find(x => x.yt && audioByYt[x.yt] === name);
+  if (!e) return;
+  current = e;
+  store.set('last', e.n);
+  $('pTitle').textContent = pad(e.n) + ' ' + e.title;
+  renderText(e);
+  if (!$('listScreen').classList.contains('hidden')) { renderList(); updateMini(); }
+}
+
 const seekEl = $('seek');
 seekEl.addEventListener('input', () => { seeking = true; $('cur').textContent = fmt(seekEl.value / 1000 * st.dur); });
 seekEl.addEventListener('change', () => { player.seekTo(seekEl.value / 1000 * st.dur); seeking = false; setTimeout(poll, 60); });
@@ -1045,6 +1109,7 @@ function toast(t, ms = 1500) {
 (async function init() {
   applyPrefs();
   setSpeed(store.get('speed', 1));
+  setMode(store.get('mode', 'stop'));
   try {
     EPISODES = (await loadJSON('transcripts.json')).episodes;
   } catch (e) {

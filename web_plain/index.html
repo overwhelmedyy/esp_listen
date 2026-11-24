@@ -73,6 +73,7 @@
     box-shadow: 0 4px 14px rgba(194,65,12,.35); display: grid; place-items: center; }
   #speedRow { display: flex; gap: 6px; }
   #speedRow button { flex: 1; height: 40px; border-radius: 10px; border: 1px solid var(--line); font-size: 15px; font-weight: 600; }
+  #speedRow #modeBtn { flex: none; width: 46px; font-size: 18px; }
   #speedRow button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
   #msg { position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%); background: rgba(0,0,0,.78); color: #fff;
     padding: 10px 18px; border-radius: 10px; font-size: 15px; pointer-events: none; opacity: 0; transition: opacity .2s; z-index: 9; }
@@ -156,18 +157,30 @@ const player = native ? {
   seekTo(ms) { Android.seekTo(Math.round(ms)); },
   seekBy(ms) { Android.seekBy(Math.round(ms)); },
   speed(x) { Android.setSpeed(x); },
+  mode(m) { if (Android.setMode) Android.setMode(m); },
+  queue(names) { if (Android.setQueue) Android.setQueue(JSON.stringify(names)); },
   state() { try { return JSON.parse(Android.state()); } catch { return null; } },
   folderName() { try { return Android.folderName() || ''; } catch { return ''; } },
 } : (() => {
-  const au = new Audio(); let files = [];
+  const au = new Audio(); let files = [], q = [], cur = null, mode = 'stop';
   au.preservesPitch = true;
-  return {
+  au.addEventListener('ended', () => {
+    window.onPlayerEvent('completed');
+    if (mode === 'list' && q.length) {
+      const nx = q[(q.indexOf(cur) + 1) % q.length];
+      obj.load(nx, 0); window.onPlayerEvent('next:' + nx);
+    }
+  });
+  const obj = {
+    mode(m) { mode = m; au.loop = m === 'one'; },
+    queue(names) { q = names; },
     pick() { $('dirInput').click(); },
     setFiles(fs) { files = fs; },
     list() { return files.map(f => ({ name: f.name, file: f })); },
     load(entry, startMs) {
       const f = files.find(x => x.name === entry);
       if (!f) return;
+      cur = entry;
       if (au.src) URL.revokeObjectURL(au.src);
       au.src = URL.createObjectURL(f);
       au.addEventListener('loadedmetadata', () => { au.currentTime = startMs / 1000; au.play(); }, { once: true });
@@ -180,6 +193,7 @@ const player = native ? {
     state() { return { pos: au.currentTime * 1000, dur: (au.duration || 0) * 1000, playing: !au.paused }; },
     folderName() { return files.length ? '已选择的文件夹' : ''; },
   };
+  return obj;
 })();
 
 $('dirInput').addEventListener('change', e => {
@@ -191,6 +205,7 @@ window.onFolderPicked = () => refreshAudio();
 // 原生播放结束等事件
 window.onPlayerEvent = ev => {
   if (ev === 'completed') { saveProgress(true); }
+  if (ev && ev.startsWith && ev.startsWith('next:')) followNext(ev.slice(5));
   if (ev && ev.startsWith && ev.startsWith('error')) toast('无法播放：' + ev.slice(6));
 };
 
@@ -208,6 +223,7 @@ function refreshAudio() {
     : (fname ? `${fname}：没有找到音频文件` : '还没有选择音频文件夹');
   $('pickBtn').textContent = n ? '更换文件夹' : '选择音频文件夹';
   renderList();
+  syncQueue();
 }
 
 /* ======================================================================
@@ -330,6 +346,38 @@ function setSpeed(x) {
   document.querySelectorAll('[data-speed]').forEach(b => b.classList.toggle('on', +b.dataset.speed === x));
 }
 
+/* ---------- 播放模式：列表循环 / 单集循环 / 播完停止
+ * 循环和切到下一集都由原生播放器完成，所以锁屏、切到后台也照样生效 ---------- */
+const MODES = { list: ['🔁', '列表循环'], one: ['🔂', '单集循环'], stop: ['⏹', '播完停止'] };
+const MODE_ORDER = ['list', 'one', 'stop'];
+const modeBtn = document.createElement('button');
+modeBtn.id = 'modeBtn';
+modeBtn.onclick = () => setMode(MODE_ORDER[(MODE_ORDER.indexOf(store.get('mode', 'stop')) + 1) % MODE_ORDER.length], true);
+$('speedRow').append(modeBtn);
+function setMode(m, announce) {
+  if (!MODES[m]) m = 'stop';
+  store.set('mode', m);
+  player.mode(m);
+  modeBtn.textContent = MODES[m][0];
+  modeBtn.title = MODES[m][1];
+  document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  if (announce) toast(MODES[m][1]);
+}
+// 列表循环的顺序 = 列表里的剧集顺序（只算找到了音频的）
+function syncQueue() {
+  player.queue(EPISODES.filter(e => e.yt && audioByYt[e.yt]).map(e => audioByYt[e.yt]));
+}
+// 原生播放器已经切到下一集：界面跟过去
+function followNext(name) {
+  const e = EPISODES.find(x => x.yt && audioByYt[x.yt] === name);
+  if (!e) return;
+  current = e;
+  store.set('last', e.n);
+  $('pTitle').textContent = pad(e.n) + ' ' + e.title;
+  renderText(e);
+  if (!$('listScreen').classList.contains('hidden')) { renderList(); updateMini(); }
+}
+
 const seekEl = $('seek');
 seekEl.addEventListener('input', () => { seeking = true; $('cur').textContent = fmt(seekEl.value / 1000 * st.dur); });
 seekEl.addEventListener('change', () => { player.seekTo(seekEl.value / 1000 * st.dur); seeking = false; setTimeout(poll, 60); });
@@ -393,6 +441,7 @@ function toast(t, ms = 1500) {
 (async function init() {
   applyPrefs();
   setSpeed(store.get('speed', 1));
+  setMode(store.get('mode', 'stop'));
   try {
     const r = await fetch('transcripts.json');
     EPISODES = (await r.json()).episodes;

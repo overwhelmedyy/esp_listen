@@ -28,8 +28,35 @@ object AudioEngine {
     @Volatile var speed = 1f
         private set
 
-    /** 播放状态变化 / 出错时通知界面（参数："state" / "completed" / "error:..."） */
+    /** 播放状态变化 / 出错时通知界面（参数："state" / "completed" / "next:<文件名>" / "error:..."） */
     var listener: ((String) -> Unit)? = null
+
+    /** 播放模式："stop" 播完停止 / "one" 单集循环 / "list" 列表循环 */
+    @Volatile var mode = "stop"
+        private set
+    /** 列表循环用的播放顺序（文件名），由界面按剧集顺序传进来 */
+    @Volatile private var queue: List<String> = emptyList()
+    /** 文件名 → Uri，由 MainActivity 提供 */
+    var resolver: ((String) -> Uri?)? = null
+
+    fun setMode(m: String) = ui {
+        mode = if (m in listOf("stop", "one", "list")) m else "stop"
+        try { mp?.isLooping = mode == "one" } catch (_: Exception) {}
+    }
+
+    fun setQueue(names: List<String>) { queue = names }
+
+    /** 列表循环：播下一集（最后一集之后回到第一集） */
+    private fun playNext(): Boolean {
+        val q = queue
+        if (q.isEmpty()) return false
+        val i = q.indexOf(currentName)
+        val next = q[if (i < 0) 0 else (i + 1) % q.size]
+        val uri = resolver?.invoke(next) ?: return false
+        load(uri, next, 0)
+        notifyChange("next:$next")
+        return true
+    }
 
     private var focusRequest: AudioFocusRequest? = null
     private var resumeOnFocusGain = false
@@ -60,8 +87,10 @@ object AudioEngine {
                 if (startMs > 0) seekTo(startMs)
                 play()
             }
+            p.isLooping = mode == "one"
             p.setOnCompletionListener {
                 notifyChange("completed")
+                if (mode == "list") playNext()
             }
             p.setOnErrorListener { _, what, extra ->
                 prepared = false

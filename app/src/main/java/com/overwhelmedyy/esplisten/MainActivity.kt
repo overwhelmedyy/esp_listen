@@ -127,6 +127,7 @@ class MainActivity : ComponentActivity() {
             else web.loadUrl("https://$APP_HOST/assets/index.html")
         }
 
+        AudioEngine.resolver = { name -> audioFiles[name] }
         AudioEngine.listener = { ev ->
             if (ev != "state") web.evaluateJavascript("window.onPlayerEvent && window.onPlayerEvent(${JSONObject.quote(ev)})", null)
         }
@@ -242,6 +243,11 @@ class MainActivity : ComponentActivity() {
         @JavascriptInterface fun seekBy(ms: Int) = AudioEngine.seekBy(ms)
         @JavascriptInterface fun setSpeed(x: Float) = AudioEngine.setSpeed(x)
         @JavascriptInterface fun state(): String = AudioEngine.stateJson()
+        @JavascriptInterface fun setMode(m: String) = AudioEngine.setMode(m)
+        @JavascriptInterface fun setQueue(json: String) {
+            val a = try { JSONArray(json) } catch (_: Exception) { JSONArray() }
+            AudioEngine.setQueue(List(a.length()) { a.optString(it) })
+        }
 
         @JavascriptInterface
         fun exportText(fileName: String, text: String) = runOnUiThread {
